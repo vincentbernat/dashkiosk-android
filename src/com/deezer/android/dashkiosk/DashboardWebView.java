@@ -56,6 +56,7 @@ public class DashboardWebView extends XWalkView {
     @Override
     protected void onAttachedToWindow() {
         XWalkPreferences.setValue(XWalkPreferences.REMOTE_DEBUGGING, true);
+        XWalkPreferences.setValue(XWalkPreferences.JAVASCRIPT_CAN_OPEN_WINDOW, false);
 
         /* Don't show error dialog */
         this.setResourceClient(new XWalkResourceClient(this) {
