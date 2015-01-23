@@ -25,7 +25,7 @@
         android:key="pref_ping_url"
         android:title="@string/pref_ping_url"
         android:summary="@string/pref_ping_url_summary"
-        android:defaultValue="http://dashkiosk" />
+        android:defaultValue="http://dashkiosk.app.exo.io" />
     <ListPreference
         android:key="pref_ping_timeout"
         android:title="@string/pref_ping_timeout"
