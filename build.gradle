@@ -1,0 +1,52 @@
+import java.util.regex.Pattern
+
+apply plugin: 'android'
+
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath 'com.android.tools.build:gradle:0.14.+'
+    }
+}
+
+repositories {
+    maven {
+        url 'https://download.01.org/crosswalk/releases/crosswalk/android/maven2'
+    }
+}
+
+dependencies {
+    compile 'org.xwalk:xwalk_core_library:10.39.235.15'
+}
+
+android {
+    sourceSets {
+        main {
+            manifest.srcFile 'AndroidManifest.xml'
+            java.srcDirs = ['src']
+            resources.srcDirs = ['src']
+            aidl.srcDirs = ['src']
+            renderscript.srcDirs = ['src']
+            res.srcDirs = ['res']
+            assets.srcDirs = ['assets']
+        }
+    }
+
+    defaultConfig {
+        versionCode getVersionCodeFromManifest()
+    }
+
+    compileSdkVersion 21
+    buildToolsVersion "21.1.2"
+}
+
+def getVersionCodeFromManifest() {
+    def manifestFile = file(android.sourceSets.main.manifest.srcFile)
+    def pattern = Pattern.compile("versionCode=\"(\\d+)\"")
+    def matcher = pattern.matcher(manifestFile.getText())
+    matcher.find()
+    return Integer.parseInt(matcher.group(1))
+}
