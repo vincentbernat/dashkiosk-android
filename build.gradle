@@ -46,3 +46,7 @@ def getVersionCodeFromManifest() {
     matcher.find()
     return Integer.parseInt(matcher.group(1))
 }
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '2.2.1'
+}

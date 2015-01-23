@@ -8,13 +8,11 @@ documentation is on [ReadTheDocs][].
 
 This project uses Gradle. Here are the steps to compile it:
 
- 1. Download [Gradle][] 2.2.1
- 2. Unpack it and ensure `bin/gradle` is somewhere in your `PATH`
- 3. Download the [Android SDK][]
- 4. Unpack it, put `bin/android` somewhere in your PATH and ensure you
+ 1. Download the [Android SDK][]
+ 2. Unpack it, put `bin/android` somewhere in your PATH and ensure you
     install Android SDK Build tools 21.1.2 as well as the SDK Platform
     21.
- 5. Build with `gradle assemble`.
+ 3. Build with `./gradlew assemble`.
 
 [Gradle]: http://www.gradle.org/
 [Android SDK]: http://developer.android.com/sdk/index.html#Other
