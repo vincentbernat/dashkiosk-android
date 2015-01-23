@@ -1,6 +1,6 @@
 import java.util.regex.Pattern
 
-apply plugin: 'android'
+apply plugin: 'com.android.application'
 
 buildscript {
     repositories {
