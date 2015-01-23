@@ -6,13 +6,9 @@ documentation is on [ReadTheDocs][].
 
 # Compilation
 
-This project uses Gradle. Here are the steps to compile it:
+This project uses Gradle. To compile, just use:
 
- 1. Download the [Android SDK][]
- 2. Unpack it, put `bin/android` somewhere in your PATH and ensure you
-    install Android SDK Build tools 21.1.2 as well as the SDK Platform
-    21.
- 3. Build with `./gradlew assemble`.
+    ./gradlew assemble
 
 [Gradle]: http://www.gradle.org/
 [Android SDK]: http://developer.android.com/sdk/index.html#Other
