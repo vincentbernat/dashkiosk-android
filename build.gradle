@@ -37,6 +37,8 @@ android {
 
     defaultConfig {
         versionCode getVersionCodeFromManifest()
+        minSdkVersion 14
+        targetSdkVersion 21
     }
 
     compileSdkVersion 21
