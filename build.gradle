@@ -53,23 +53,25 @@ android {
                     keyPassword localProperties.getProperty("key.alias.password", "")
                 }
             }
+            buildTypes {
+                release {
+                    signingConfig signingConfigs.release
+                }
+            }
         }
     }
 
-    buildTypes {
-        release {
-            signingConfig signingConfigs.release
-        }
-    }
 }
 
 // Ask for passwords when signing
 task askForPasswords << {
-    if (android.signingConfigs.release.storePassword == "") {
-        android.signingConfigs.release.storePassword =  new String(System.console().readPassword("\n** Keystore password: "))
-    }
-    if (android.signingConfigs.release.keyPassword == "") {
-       android.signingConfigs.release.keyPassword = new String(System.console().readPassword("\n** Key password: "))
+    if (android.hasProperty("signingConfigs") && android.signingConfigs.hasProperty("release")) {
+        if (android.signingConfigs.release.storePassword == "") {
+            android.signingConfigs.release.storePassword = new String(System.console().readPassword("\n** Keystore password: "))
+        }
+        if (android.signingConfigs.release.keyPassword == "") {
+           android.signingConfigs.release.keyPassword = new String(System.console().readPassword("\n** Key password: "))
+        }
     }
 }
 tasks.whenTaskAdded { theTask ->
