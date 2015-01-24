@@ -17,6 +17,12 @@
         android:summaryOn="@string/pref_lock_settings_summary_on"
         android:summaryOff="@string/pref_lock_settings_summary_off"
         android:defaultValue="false" />
+    <CheckBoxPreference
+        android:key="pref_screen_on"
+        android:title="@string/pref_screen_on"
+        android:summaryOn="@string/pref_screen_on_summary_on"
+        android:summaryOff="@string/pref_screen_on_summary_off"
+        android:defaultValue="true" />
   </PreferenceCategory>
   <PreferenceCategory
       android:title="@string/pref_ping_title"

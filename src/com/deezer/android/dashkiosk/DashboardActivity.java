@@ -30,6 +30,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.WindowManager;
 import android.view.View;
 
 import com.deezer.android.dashkiosk.DashboardWebView;
@@ -98,6 +99,21 @@ public class DashboardActivity extends Activity {
         }
     }
 
+    /**
+     * Force screen on
+     */
+    private void setScreenOn() {
+        SharedPreferences sharedPref = PreferenceManager
+            .getDefaultSharedPreferences(getApplication());
+        if (sharedPref.getBoolean("pref_screen_on", true)) {
+            Log.i(TAG, "Keep screen on all the time");
+            getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        } else {
+            Log.i(TAG, "Don't keep screen on all the time");
+            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        }
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.action_edit) {
@@ -120,6 +136,7 @@ public class DashboardActivity extends Activity {
 
         Log.i(TAG, "Main activity created");
         PreferenceManager.setDefaultValues(this, R.xml.preferences, true);
+        setScreenOn();
         setOrientation();
         hideNavigationBar();
         setContentView(R.layout.main);
