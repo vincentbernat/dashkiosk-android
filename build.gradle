@@ -39,8 +39,46 @@ android {
 
     compileSdkVersion 21
     buildToolsVersion "21.1.2"
+
+    File localPropertiesFile = rootProject.file('local.properties')
+    if (localPropertiesFile.exists()) {
+        Properties localProperties = new Properties()
+        localProperties.load(new FileInputStream(localPropertiesFile))
+        if (localProperties.getProperty("key.store")) {
+            signingConfigs {
+                release {
+                    storeFile file(localProperties.getProperty("key.store"))
+                    keyAlias localProperties.getProperty("key.alias", "dashkiosk")
+                    storePassword localProperties.getProperty("key.store.password", "")
+                    keyPassword localProperties.getProperty("key.alias.password", "")
+                }
+            }
+        }
+    }
+
+    buildTypes {
+        release {
+            signingConfig signingConfigs.release
+        }
+    }
 }
 
+// Ask for passwords when signing
+task askForPasswords << {
+    if (android.signingConfigs.release.storePassword == "") {
+        android.signingConfigs.release.storePassword =  new String(System.console().readPassword("\n** Keystore password: "))
+    }
+    if (android.signingConfigs.release.keyPassword == "") {
+       android.signingConfigs.release.keyPassword = new String(System.console().readPassword("\n** Key password: "))
+    }
+}
+tasks.whenTaskAdded { theTask ->
+    if (theTask.name.equals("packageRelease")) {
+        theTask.dependsOn "askForPasswords"
+    }
+}
+
+// Create the wrapper
 task wrapper(type: Wrapper) {
     gradleVersion = '2.2.1'
 }
