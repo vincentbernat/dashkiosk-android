@@ -38,6 +38,7 @@ import com.deezer.android.dashkiosk.DashboardWebView;
 public class DashboardActivity extends Activity {
 
     private static final String TAG = "Dashkiosk";
+    DashboardWebView mWebView = null;
 
     /**
      * Hide navigation bar. Run at regular interval.
@@ -140,5 +141,33 @@ public class DashboardActivity extends Activity {
         setOrientation();
         hideNavigationBar();
         setContentView(R.layout.main);
+        mWebView = (DashboardWebView)findViewById(R.id.webview);
     }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (mWebView != null) {
+            mWebView.pauseTimers();
+            mWebView.onHide();
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (mWebView != null) {
+            mWebView.resumeTimers();
+            mWebView.onShow();
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (mWebView != null) {
+            mWebView.onDestroy();
+        }
+    }
+
 }
