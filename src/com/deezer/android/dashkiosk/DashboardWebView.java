@@ -33,6 +33,7 @@ import android.webkit.ValueCallback;
 import org.xwalk.core.JavascriptInterface;
 import org.xwalk.core.XWalkPreferences;
 import org.xwalk.core.XWalkResourceClient;
+import org.xwalk.core.XWalkUIClient;
 import org.xwalk.core.XWalkView;
 
 import com.deezer.android.dashkiosk.DashboardWaitscreen;
@@ -75,6 +76,14 @@ public class DashboardWebView extends XWalkView {
                                                ValueCallback<Boolean> callback,
                                                SslError error) {
                     callback.onReceiveValue(true);
+                }
+            });
+
+        /* Ignore most interactions */
+        this.setUIClient(new XWalkUIClient(this) {
+                @Override
+                public void onFullscreenToggled(XWalkView view, boolean enterFullscreen) {
+                    Log.d(TAG, "Ignore fullscreen request");
                 }
             });
 
