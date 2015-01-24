@@ -31,6 +31,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.ValueCallback;
 import org.xwalk.core.JavascriptInterface;
+import org.xwalk.core.XWalkJavascriptResult;
 import org.xwalk.core.XWalkPreferences;
 import org.xwalk.core.XWalkResourceClient;
 import org.xwalk.core.XWalkUIClient;
@@ -84,6 +85,17 @@ public class DashboardWebView extends XWalkView {
                 @Override
                 public void onFullscreenToggled(XWalkView view, boolean enterFullscreen) {
                     Log.d(TAG, "Ignore fullscreen request");
+                }
+
+                @Override
+                public boolean onJavascriptModalDialog(XWalkView view,
+                                                       XWalkUIClient.JavascriptMessageType type,
+                                                       java.lang.String url,
+                                                       java.lang.String message,
+                                                       java.lang.String defaultValue,
+                                                       XWalkJavascriptResult result) {
+                    Log.d(TAG, "Ignore JS modal dialog (type: " + type + ", message: " + message + ")");
+                    return false;
                 }
             });
 
