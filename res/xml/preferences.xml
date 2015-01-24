@@ -40,4 +40,14 @@
         android:entryValues="@array/pref_ping_timeout_values"
         android:defaultValue="30000" />
   </PreferenceCategory>
+  <PreferenceCategory
+      android:title="@string/pref_content_handling_title"
+      android:key="pref_content_handling_settings">
+    <CheckBoxPreference
+        android:key="pref_insecure_ssl"
+        android:title="@string/pref_insecure_ssl"
+        android:summaryOn="@string/pref_insecure_ssl_on"
+        android:summaryOff="@string/pref_insecure_ssl_off"
+        android:defaultValue="false" />
+  </PreferenceCategory>
 </PreferenceScreen>

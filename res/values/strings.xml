@@ -17,6 +17,10 @@
     <string name="pref_ping_url_summary">URL to the dashboard web application</string>
     <string name="pref_ping_timeout">Timeout</string>
     <string name="pref_ping_timeout_summary">Timeout in milliseconds when retrieving URL</string>
+    <string name="pref_content_handling_title">Content handling</string>
+    <string name="pref_insecure_ssl">Insecure SSL</string>
+    <string name="pref_insecure_ssl_on">SSL errors don\'t prevent loading a page</string>
+    <string name="pref_insecure_ssl_off">SSL errors will prevent loading a page</string>
     <string name="wait">Please, wait.</string>
     <string name="wait_quote">This, Jen, is the Internet.</string>
 </resources>

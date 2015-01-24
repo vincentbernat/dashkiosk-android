@@ -77,7 +77,10 @@ public class DashboardWebView extends XWalkView {
                 public void onReceivedSslError(XWalkView view,
                                                ValueCallback<Boolean> callback,
                                                SslError error) {
-                    callback.onReceiveValue(true);
+                    SharedPreferences sharedPref = PreferenceManager
+                        .getDefaultSharedPreferences(mContext);
+                    Boolean insecure = sharedPref.getBoolean("pref_insecure_ssl", false);
+                    callback.onReceiveValue(insecure);
                 }
             });
 
