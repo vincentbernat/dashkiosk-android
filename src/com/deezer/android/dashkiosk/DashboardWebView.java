@@ -97,6 +97,11 @@ public class DashboardWebView extends XWalkView {
                     Log.d(TAG, "Ignore JS modal dialog (type: " + type + ", message: " + message + ")");
                     return false;
                 }
+
+                @Override
+                public void onJavascriptCloseWindow(XWalkView view) {
+                    Log.d(TAG, "Ignore request to close window");
+                }
             });
 
         /* Provide an interface for readiness */
