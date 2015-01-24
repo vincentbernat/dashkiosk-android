@@ -19,6 +19,7 @@ package com.deezer.android.dashkiosk;
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.net.http.SslError;
 import android.os.Handler;
 import android.os.Message;
 import android.preference.PreferenceManager;
@@ -28,6 +29,7 @@ import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.ValueCallback;
 import org.xwalk.core.JavascriptInterface;
 import org.xwalk.core.XWalkPreferences;
 import org.xwalk.core.XWalkResourceClient;
@@ -58,7 +60,7 @@ public class DashboardWebView extends XWalkView {
         XWalkPreferences.setValue(XWalkPreferences.REMOTE_DEBUGGING, true);
         XWalkPreferences.setValue(XWalkPreferences.JAVASCRIPT_CAN_OPEN_WINDOW, false);
 
-        /* Don't show error dialog */
+        /* Don't show error dialogs */
         this.setResourceClient(new XWalkResourceClient(this) {
                 @Override
                 public void onReceivedLoadError(XWalkView view,
@@ -66,6 +68,13 @@ public class DashboardWebView extends XWalkView {
                                                 String description,
                                                 String failingUrl) {
                     Log.d(TAG, "Load Failed for " + failingUrl + ": " + description);
+                }
+
+                @Override
+                public void onReceivedSslError(XWalkView view,
+                                               ValueCallback<Boolean> callback,
+                                               SslError error) {
+                    callback.onReceiveValue(true);
                 }
             });
 
