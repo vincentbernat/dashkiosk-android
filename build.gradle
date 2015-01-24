@@ -41,14 +41,6 @@ android {
     buildToolsVersion "21.1.2"
 }
 
-def getVersionCodeFromManifest() {
-    def manifestFile = file(android.sourceSets.main.manifest.srcFile)
-    def pattern = Pattern.compile("versionCode=\"(\\d+)\"")
-    def matcher = pattern.matcher(manifestFile.getText())
-    matcher.find()
-    return Integer.parseInt(matcher.group(1))
-}
-
 task wrapper(type: Wrapper) {
     gradleVersion = '2.2.1'
 }
