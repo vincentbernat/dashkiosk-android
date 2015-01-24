@@ -20,6 +20,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.net.http.SslError;
+import android.net.Uri;
 import android.os.Handler;
 import android.os.Message;
 import android.preference.PreferenceManager;
@@ -90,9 +91,9 @@ public class DashboardWebView extends XWalkView {
                 @Override
                 public boolean onJavascriptModalDialog(XWalkView view,
                                                        XWalkUIClient.JavascriptMessageType type,
-                                                       java.lang.String url,
-                                                       java.lang.String message,
-                                                       java.lang.String defaultValue,
+                                                       String url,
+                                                       String message,
+                                                       String defaultValue,
                                                        XWalkJavascriptResult result) {
                     Log.d(TAG, "Ignore JS modal dialog (type: " + type + ", message: " + message + ")");
                     return false;
@@ -101,6 +102,14 @@ public class DashboardWebView extends XWalkView {
                 @Override
                 public void onJavascriptCloseWindow(XWalkView view) {
                     Log.d(TAG, "Ignore request to close window");
+                }
+
+                @Override
+                public void openFileChooser(XWalkView view,
+                                            ValueCallback<Uri> uploadFile,
+                                            String acceptType,
+                                            String capture) {
+                    Log.d(TAG, "Ignore request to open a file chooser");
                 }
             });
 
