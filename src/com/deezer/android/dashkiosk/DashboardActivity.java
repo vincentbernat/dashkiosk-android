@@ -84,12 +84,13 @@ public class DashboardActivity extends Activity {
                 @Override
                 public void onSystemUiVisibilityChange(int visibility) {
                     ActionBar bar = getActionBar();
-                    bar.setBackgroundDrawable(new ColorDrawable(Color.BLACK));
 
                     if ((visibility & View.SYSTEM_UI_FLAG_HIDE_NAVIGATION) == 0) {
                         SharedPreferences sharedPref = PreferenceManager
                             .getDefaultSharedPreferences(getApplication());
                         if (!sharedPref.getBoolean("pref_lock_settings", false)) {
+                            bar.setBackgroundDrawable(
+                                new ColorDrawable(Color.argb(150, 0, 0, 0)));
                             bar.show();
                         }
                     } else {
