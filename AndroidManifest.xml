@@ -8,7 +8,7 @@
 
   <uses-sdk
       tools:ignore="OldTargetApi"
-      android:minSdkVersion="16"
+      android:minSdkVersion="14"
       android:targetSdkVersion="19" />
 
   <uses-permission android:name="android.permission.INTERNET" />
