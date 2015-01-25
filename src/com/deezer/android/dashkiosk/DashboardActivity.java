@@ -16,12 +16,15 @@
 
 package com.deezer.android.dashkiosk;
 
+import android.app.ActionBar;
 import android.app.Activity;
 import android.app.LoaderManager;
 import android.content.Intent;
 import android.content.Loader;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -50,23 +53,21 @@ public class DashboardActivity extends Activity {
                 public void run() {
                     try {
                         View decorView = getWindow().getDecorView();
-                        SharedPreferences sharedPref = PreferenceManager
-                            .getDefaultSharedPreferences(getApplication());
-                        Boolean locked = sharedPref.getBoolean("pref_lock_settings", false);
 
                         int flags = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
                         if (android.os.Build.VERSION.SDK_INT >= 19) {
+                            SharedPreferences sharedPref = PreferenceManager
+                                .getDefaultSharedPreferences(getApplication());
+                            Boolean locked = sharedPref.getBoolean("pref_lock_settings", false);
                             if (locked) {
                                 flags |= View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
                             }
                         }
                         if (android.os.Build.VERSION.SDK_INT >= 16) {
-                            if (locked) {
-                                flags |= View.SYSTEM_UI_FLAG_LAYOUT_STABLE |
-                                    View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION |
-                                    View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN;
-                            }
-                            flags |= View.SYSTEM_UI_FLAG_FULLSCREEN;
+                            flags |= View.SYSTEM_UI_FLAG_LAYOUT_STABLE |
+                                View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION |
+                                View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN |
+                                View.SYSTEM_UI_FLAG_FULLSCREEN;
                         } else {
                             flags |= View.SYSTEM_UI_FLAG_LOW_PROFILE;
                         }
@@ -82,14 +83,17 @@ public class DashboardActivity extends Activity {
             new View.OnSystemUiVisibilityChangeListener() {
                 @Override
                 public void onSystemUiVisibilityChange(int visibility) {
+                    ActionBar bar = getActionBar();
+                    bar.setBackgroundDrawable(new ColorDrawable(Color.BLACK));
+
                     if ((visibility & View.SYSTEM_UI_FLAG_HIDE_NAVIGATION) == 0) {
                         SharedPreferences sharedPref = PreferenceManager
                             .getDefaultSharedPreferences(getApplication());
                         if (!sharedPref.getBoolean("pref_lock_settings", false)) {
-                            getActionBar().show();
+                            bar.show();
                         }
                     } else {
-                        getActionBar().hide();
+                        bar.hide();
                     }
                 }
             });
