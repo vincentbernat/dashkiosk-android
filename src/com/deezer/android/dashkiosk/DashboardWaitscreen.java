@@ -45,10 +45,14 @@ public class DashboardWaitscreen extends Dialog {
         window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT,
                          ViewGroup.LayoutParams.MATCH_PARENT);
         window.setBackgroundDrawable(new ColorDrawable(0));
-        window.getDecorView()
-            .setSystemUiVisibility(
-                View.SYSTEM_UI_FLAG_HIDE_NAVIGATION |
-                View.SYSTEM_UI_FLAG_FULLSCREEN);
+
+        int flags = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
+        if (android.os.Build.VERSION.SDK_INT >= 16) {
+            flags |= View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
+        } else {
+            flags |= View.SYSTEM_UI_FLAG_LOW_PROFILE;
+        }
+        window.getDecorView().setSystemUiVisibility(flags);
     }
 
     @Override
