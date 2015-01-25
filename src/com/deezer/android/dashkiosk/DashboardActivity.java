@@ -64,7 +64,8 @@ public class DashboardActivity extends Activity {
                                 View.SYSTEM_UI_FLAG_FULLSCREEN);
                         } else {
                             decorView.setSystemUiVisibility(
-                                View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
+                                View.SYSTEM_UI_FLAG_HIDE_NAVIGATION |
+                                View.SYSTEM_UI_FLAG_LOW_PROFILE);
                         }
                     } finally {
                         handler.postDelayed(this, 20000);
