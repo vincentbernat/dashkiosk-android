@@ -70,7 +70,7 @@ public class DashboardActivity extends Activity {
             new View.OnSystemUiVisibilityChangeListener() {
                 @Override
                 public void onSystemUiVisibilityChange(int visibility) {
-                    if ((visibility & View.SYSTEM_UI_FLAG_FULLSCREEN) == 0) {
+                    if ((visibility & View.SYSTEM_UI_FLAG_HIDE_NAVIGATION) == 0) {
                         SharedPreferences sharedPref = PreferenceManager
                             .getDefaultSharedPreferences(getApplication());
                         if (!sharedPref.getBoolean("pref_lock_settings", false)) {
