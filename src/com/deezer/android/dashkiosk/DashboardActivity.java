@@ -50,15 +50,27 @@ public class DashboardActivity extends Activity {
                 public void run() {
                     try {
                         View decorView = getWindow().getDecorView();
-                        if (android.os.Build.VERSION.SDK_INT >= 16) {
-                            decorView.setSystemUiVisibility(
-                                View.SYSTEM_UI_FLAG_HIDE_NAVIGATION |
-                                View.SYSTEM_UI_FLAG_FULLSCREEN);
-                        } else {
-                            decorView.setSystemUiVisibility(
-                                View.SYSTEM_UI_FLAG_HIDE_NAVIGATION |
-                                View.SYSTEM_UI_FLAG_LOW_PROFILE);
+                        SharedPreferences sharedPref = PreferenceManager
+                            .getDefaultSharedPreferences(getApplication());
+                        Boolean locked = sharedPref.getBoolean("pref_lock_settings", false);
+
+                        int flags = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
+                        if (android.os.Build.VERSION.SDK_INT >= 19) {
+                            if (locked) {
+                                flags |= View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
+                            }
                         }
+                        if (android.os.Build.VERSION.SDK_INT >= 16) {
+                            if (locked) {
+                                flags |= View.SYSTEM_UI_FLAG_LAYOUT_STABLE |
+                                    View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION |
+                                    View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN;
+                            }
+                            flags |= View.SYSTEM_UI_FLAG_FULLSCREEN;
+                        } else {
+                            flags |= View.SYSTEM_UI_FLAG_LOW_PROFILE;
+                        }
+                        decorView.setSystemUiVisibility(flags);
                     } finally {
                         handler.postDelayed(this, 20000);
                     }
