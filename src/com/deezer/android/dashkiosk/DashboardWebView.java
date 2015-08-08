@@ -59,6 +59,15 @@ public class DashboardWebView extends XWalkView {
     }
 
     @Override
+    protected void onDetachedFromWindow() {
+        this.hideWaitScreen();
+        this.mHandler.removeMessages(ALIVE);
+        this.mHandler.removeMessages(DEADLINE);
+        this.mHandler = null;
+        Log.d(TAG, "Webview paused");
+    }
+
+    @Override
     protected void onAttachedToWindow() {
         XWalkPreferences.setValue(XWalkPreferences.REMOTE_DEBUGGING, true);
         XWalkPreferences.setValue(XWalkPreferences.JAVASCRIPT_CAN_OPEN_WINDOW, false);
