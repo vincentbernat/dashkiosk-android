@@ -10,6 +10,10 @@ This project uses Gradle. To compile, just use:
 
     ./gradlew assemble
 
+To just build a debug APK, use:
+
+    ./gradlew assembleDebug
+
 [Gradle]: http://www.gradle.org/
 [Android SDK]: http://developer.android.com/sdk/index.html#Other
 
