@@ -137,10 +137,11 @@ public class DashboardWebView extends XWalkView {
         this.displayWaitScreen();
         this.heartbeat();
         this.loadReceiver();
+        Log.d(TAG, "Webview started");
     }
 
     private void displayWaitScreen() {
-        if (mWaitscreen != null) {
+        if (mWaitscreen != null && mWaitscreen.isShowing()) {
             return;
         }
         mWaitscreen = new DashboardWaitscreen(mContext);
@@ -148,10 +149,9 @@ public class DashboardWebView extends XWalkView {
     }
 
     private void hideWaitScreen() {
-        if (mWaitscreen == null) {
-            return;
+        if (mWaitscreen != null && mWaitscreen.isShowing()) {
+            mWaitscreen.dismiss();
         }
-        mWaitscreen.dismiss();
         mWaitscreen = null;
     }
 
