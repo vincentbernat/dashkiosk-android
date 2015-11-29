@@ -38,3 +38,19 @@ comes as four components:
     if you want to display dashboards using Google Chromecast devices.
 
 [Crosswalk]: https://crosswalk-project.org/
+
+# Limitations and non-limitations
+
+The Dashkiosk application for Android has a few perks, notably the
+support of WebGL and decent performance, thanks to the accelerated
+webview.
+
+However, here are a few limitations:
+
+ - inability to login through a web form
+ - inability to preset a cookie (this could be a workaround for the
+   limitation above and this should not be too complicated to do, open
+   an issue if needed)
+ - inability to use a client certificate for authentication (will be
+   solved when Crosswalk 16 is released, see
+   [XWALK-2697](https://crosswalk-project.org/jira/browse/XWALK-2697))
