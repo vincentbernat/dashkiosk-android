@@ -21,7 +21,7 @@ apply plugin: 'android-sdk-manager'
 apply plugin: 'com.android.application'
 
 dependencies {
-    compile 'org.xwalk:xwalk_core_library:14.43.+'
+    compile 'org.xwalk:xwalk_core_library:15.44.+'
 }
 
 android {
