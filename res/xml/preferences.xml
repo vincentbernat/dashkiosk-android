@@ -6,7 +6,6 @@
     <ListPreference
         android:key="pref_general_orientation"
         android:title="@string/pref_general_orientation"
-        android:dialogTitle="@string/pref_general_orientation"
         android:summary="@string/pref_general_orientation_summary"
         android:entries="@array/pref_general_orientation_entries"
         android:entryValues="@array/pref_general_orientation_values"
@@ -41,13 +40,36 @@
         android:defaultValue="30000" />
   </PreferenceCategory>
   <PreferenceCategory
-      android:title="@string/pref_content_handling_title"
-      android:key="pref_content_handling_settings">
+      android:title="@string/pref_ssl_title"
+      android:key="pref_ssl_settings">
     <CheckBoxPreference
         android:key="pref_insecure_ssl"
-        android:title="@string/pref_insecure_ssl"
-        android:summaryOn="@string/pref_insecure_ssl_on"
-        android:summaryOff="@string/pref_insecure_ssl_off"
+        android:title="@string/pref_ssl_insecure"
+        android:summaryOn="@string/pref_ssl_insecure_on"
+        android:summaryOff="@string/pref_ssl_insecure_off"
         android:defaultValue="false" />
+    <CheckBoxPreference
+        android:key="pref_ssl_embedded_keystore"
+        android:title="@string/pref_ssl_embedded_keystore"
+        android:summaryOn="@string/pref_ssl_embedded_keystore_on"
+        android:summaryOff="@string/pref_ssl_embedded_keystore_off"
+        android:defaultValue="true" />
+    <CheckBoxPreference
+        android:key="pref_ssl_external_keystore"
+        android:title="@string/pref_ssl_external_keystore"
+        android:summaryOn="@string/pref_ssl_external_keystore_on"
+        android:summaryOff="@string/pref_ssl_external_keystore_off"
+        android:defaultValue="false" />
+    <EditTextPreference
+        android:key="pref_ssl_keystore_path"
+        android:title="@string/pref_ssl_keystore_path"
+        android:summary="@string/pref_ssl_keystore_path_summary"
+        android:defaultValue="/media/dashkiosk.bks"
+        android:dependency="pref_ssl_external_keystore" />
+    <EditTextPreference
+        android:key="pref_ssl_keystore_password"
+        android:title="@string/pref_ssl_keystore_password"
+        android:summary="@string/pref_ssl_keystore_password_summary"
+        android:defaultValue="changeit" />
   </PreferenceCategory>
 </PreferenceScreen>

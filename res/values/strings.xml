@@ -17,10 +17,20 @@
     <string name="pref_ping_url_summary">URL to the dashboard web application</string>
     <string name="pref_ping_timeout">Timeout</string>
     <string name="pref_ping_timeout_summary">Timeout in milliseconds when retrieving URL</string>
-    <string name="pref_content_handling_title">Content handling</string>
-    <string name="pref_insecure_ssl">Insecure SSL</string>
-    <string name="pref_insecure_ssl_on">SSL errors don\'t prevent loading a page</string>
-    <string name="pref_insecure_ssl_off">SSL errors will prevent loading a page</string>
+    <string name="pref_ssl_title">TLS</string>
+    <string name="pref_ssl_insecure">Insecure TLS</string>
+    <string name="pref_ssl_insecure_on">TLS errors don\'t prevent loading a page</string>
+    <string name="pref_ssl_insecure_off">TLS errors will prevent loading a page</string>
+    <string name="pref_ssl_embedded_keystore">Embedded keystore</string>
+    <string name="pref_ssl_embedded_keystore_on">Use embedded keystore for client certificates</string>
+    <string name="pref_ssl_embedded_keystore_off">Do not use embedded keystore for client certificates</string>
+    <string name="pref_ssl_external_keystore">External keystore</string>
+    <string name="pref_ssl_external_keystore_on">Use external keystore for client certificates</string>
+    <string name="pref_ssl_external_keystore_off">Do not use external keystore for client certificates</string>
+    <string name="pref_ssl_keystore_path">Keystore path</string>
+    <string name="pref_ssl_keystore_path_summary">Path to external keystore</string>
+    <string name="pref_ssl_keystore_password">Keystore password</string>
+    <string name="pref_ssl_keystore_password_summary">Password to decrypt the keystore</string>
     <string name="wait">Please, wait.</string>
     <string name="wait_quote">This, Jen, is the Internet.</string>
 </resources>

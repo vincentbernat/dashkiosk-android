@@ -1,0 +1,5 @@
+# Template for CA certificate
+organization = Dashkiosk
+cn = Dashkiosk example CA
+ca
+cert_signing_key

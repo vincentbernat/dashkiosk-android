@@ -17,6 +17,16 @@ To just build a debug APK, use:
 [Gradle]: http://www.gradle.org/
 [Android SDK]: http://developer.android.com/sdk/index.html#Other
 
+The embedded certificates are just here as an exemple. Only the client
+certificate (along with the key) will be bundled in the
+application. Since the CA shouldn't be used anywhere, it shoudn't be a
+security risk. But you can remove the symbolic link in `res/raw`. Have
+a look at `certificates/generate` script to understand how those
+certificates were generated.
+
+Currently, ensure that you store only one keypair in the keystore. The
+Android application will always use the first certificate.
+
 # About Dashkiosk
 
 Dashkiosk is a solution to manage dashboards on multiple screens. It

@@ -19,11 +19,12 @@ package com.deezer.android.dashkiosk;
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.net.http.SslError;
 import android.net.Uri;
+import android.net.http.SslError;
 import android.os.Handler;
 import android.os.Message;
 import android.preference.PreferenceManager;
+import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -31,6 +32,17 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.ValueCallback;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.cert.Certificate;
+import java.security.cert.X509Certificate;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Enumeration;
+import org.xwalk.core.ClientCertRequest;
 import org.xwalk.core.JavascriptInterface;
 import org.xwalk.core.XWalkJavascriptResult;
 import org.xwalk.core.XWalkPreferences;
@@ -91,6 +103,112 @@ public class DashboardWebView extends XWalkView {
                     Boolean insecure = sharedPref.getBoolean("pref_insecure_ssl", false);
                     callback.onReceiveValue(insecure);
                 }
+
+                private Boolean handleClientCertRequest(ClientCertRequest handler,
+                                                        InputStream in,
+                                                        String pass,
+                                                        String type) {
+                    KeyStore keystore = null;
+                    char[] password = (pass.length() > 0)?pass.toCharArray():null;
+                    try {
+                        try {
+                            keystore = KeyStore.getInstance("BKS");
+                        } catch (Exception e) {
+                            Log.e(TAG, "Unable to create a new BKS keystore", e);
+                            handler.cancel();
+                            return true;
+                        }
+                        try {
+                            keystore.load(in, password);
+                        } catch (Exception e) {
+                            Log.e(TAG, "Unable to open " + type + "store", e);
+                            return false;
+                        }
+                    } finally {
+                        try {
+                            in.close();
+                        } catch (Exception e) {
+                            // Don't do anything.
+                        }
+                    }
+
+                    /* Iterate over available certificates */
+                    try {
+                        Enumeration<String> aliases = keystore.aliases();
+                        while (aliases.hasMoreElements()) {
+                            String alias = aliases.nextElement();
+                            if (!keystore.isKeyEntry(alias)) {
+                                Log.d(TAG, "Entry `" + alias + "` is not a private key, skip");
+                                continue;
+                            }
+                            KeyStore.PrivateKeyEntry entry = null;
+                            try {
+                                entry = (KeyStore.PrivateKeyEntry)keystore.getEntry(
+                                    alias, new KeyStore.PasswordProtection(password));
+                            } catch (Exception e) {
+                                Log.e(TAG, "Unable to get entry `" + alias + "`", e);
+                                continue;
+                            }
+                            Log.d(TAG, "Got a private key!");
+                            ArrayList<X509Certificate> chain = new ArrayList<X509Certificate>();
+                            for (Certificate c : entry.getCertificateChain()) {
+                                chain.add((X509Certificate)c);
+                            }
+                            handler.proceed(entry.getPrivateKey(), chain);
+                            return true;
+                        }
+                    } catch (KeyStoreException e) {
+                        Log.e(TAG, "Error while querying keystore", e);
+                        return false;
+                    }
+
+                    /* Nothing found */
+                    return false;
+                }
+
+                @Override
+                public void onReceivedClientCertRequest(XWalkView view,
+                                                        ClientCertRequest handler) {
+                    Log.d(TAG, "Client certificate requested for " + handler.getHost());
+                    /* Unfortunately, not implemented yet in Crosswalk */
+                    // Log.d(TAG, "Accepted key types: " + TextUtils.join(", ", handler.getKeyTypes()));
+                    // Log.d(TAG, "Accepted principals: " + TextUtils.join(", ", handler.getPrincipals()));
+
+                    SharedPreferences sharedPref = PreferenceManager
+                        .getDefaultSharedPreferences(mContext);
+                    String password = sharedPref.getString("pref_ssl_keystore_password", "");
+                    Boolean external = sharedPref.getBoolean("pref_ssl_external_keystore", false);
+                    String path = sharedPref.getString("pref_ssl_keystore_path", "");
+                    Boolean embedded = sharedPref.getBoolean("pref_ssl_embedded_keystore", false);
+
+                    if (external) {
+                        Log.d(TAG, "Looking for external store `" + path + "`");
+                        FileInputStream in = null;
+                        try {
+                            in = new FileInputStream(path);
+                        } catch (FileNotFoundException e) {
+                            Log.e(TAG, "Keystore `" + path + "` was not found");
+                        }
+                        if (in != null && handleClientCertRequest(handler, in,
+                                                              password, "external")) {
+                            return;
+                        }
+                    }
+                    if (embedded) {
+                        Log.d(TAG, "Looking for embedded store");
+                        InputStream in = getResources().openRawResource(R.raw.clientstore);
+                        if (in != null && handleClientCertRequest(handler, in,
+                                                              password, "embedded")) {
+                            return;
+                        }
+                    }
+
+                    Log.i(TAG,
+                          "Unable to find a matching client certificate for " +
+                          handler.getHost() + " in keystore");
+                    handler.cancel();
+                }
+
             });
 
         /* Ignore most interactions */

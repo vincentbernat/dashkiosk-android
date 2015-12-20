@@ -1,0 +1,62 @@
+#!/bin/sh
+
+# Generate a set of certificates for tests. This simple script needs
+# certtool which is a GNU TLS utility. Do not run it as is, it just
+# generate random content. Copy/paste and adapt what you need.
+
+set -e
+
+# Key and certificate for CA
+rm -f ca-key.pem ca-cert.pem
+(umask 277 && certtool --generate-privkey > ca-key.pem)
+certtool --generate-self-signed \
+         --template ca-template.txt \
+         --load-privkey ca-key.pem \
+         --outfile ca-cert.pem
+
+# Key and certificate for server
+rm -f server-key.pem server-cert.pem
+(umask 277 && certtool --generate-privkey > server-key.pem)
+certtool --generate-certificate \
+         --template server-template.txt \
+         --load-privkey server-key.pem \
+         --load-ca-certificate ca-cert.pem \
+         --load-ca-privkey ca-key.pem \
+         --outfile server-cert.pem
+
+# Key and certificate for client
+rm -f client-key.pem client-cert.pem client.pem
+(umask 277 && certtool --generate-privkey > client-key.pem)
+certtool --generate-certificate \
+         --template client-template.txt \
+         --load-privkey client-key.pem \
+         --load-ca-certificate ca-cert.pem \
+         --load-ca-privkey ca-key.pem \
+         --outfile client-cert.pem
+
+# Put the certificate and key for client into certificate store
+# (protected by "changeit" password). keytool is not able to import a
+# key. It's a great tool. Use PKCS12.
+rm -f client.p12 store.bks
+certtool --load-certificate client-cert.pem \
+         --load-privkey client-key.pem \
+         --to-p12 --outder \
+         --p12-name "First TV on the left" \
+         --password changeit \
+         --outfile client.p12
+keytool -importkeystore \
+        -deststorepass changeit \
+        -destkeystore store.bks \
+        -deststoretype BKS \
+        -provider org.bouncycastle.jce.provider.BouncyCastleProvider \
+        -providerpath /usr/share/java/bcprov.jar \
+        -srckeystore client.p12 \
+        -srcstoretype PKCS12 \
+        -srcstorepass changeit
+
+# Display the keystore
+keytool -list \
+        -keystore store.bks \
+        -storetype BKS \
+        -provider org.bouncycastle.jce.provider.BouncyCastleProvider \
+        -providerpath /usr/share/java/bcprov.jar

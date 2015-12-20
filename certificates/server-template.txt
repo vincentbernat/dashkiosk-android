@@ -1,0 +1,6 @@
+# Template for some web server
+organization = Dashkiosk
+cn = www.192.168.117.34.xip.io
+tls_www_server
+encryption_key
+signing_key

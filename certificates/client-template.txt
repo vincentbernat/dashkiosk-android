@@ -1,0 +1,6 @@
+# Template for some web server
+organization = Dashkiosk
+cn = First TV on the left
+tls_www_client
+encryption_key
+signing_key
