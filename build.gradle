@@ -22,6 +22,14 @@ dependencies {
     compile 'org.xwalk:xwalk_core_library_beta:16.45.+'
 }
 
+allprojects {
+    gradle.projectsEvaluated {
+        tasks.withType(JavaCompile) {
+            options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
+        }
+    }
+}
+
 android {
     sourceSets {
         main {
