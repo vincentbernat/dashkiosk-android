@@ -61,6 +61,5 @@ However, here are a few limitations:
  - inability to preset a cookie (this could be a workaround for the
    limitation above and this should not be too complicated to do, open
    an issue if needed)
- - inability to use a client certificate for authentication (will be
-   solved when Crosswalk 16 is released, see
-   [XWALK-2697](https://crosswalk-project.org/jira/browse/XWALK-2697))
+ - inability to use several client certificates, see
+   [XWALK-6025](https://crosswalk-project.org/jira/browse/XWALK-6025))
