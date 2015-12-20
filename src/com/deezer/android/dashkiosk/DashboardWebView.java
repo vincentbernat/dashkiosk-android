@@ -91,7 +91,7 @@ public class DashboardWebView extends XWalkView {
                                                 int errorCode,
                                                 String description,
                                                 String failingUrl) {
-                    Log.d(TAG, "Load Failed for " + failingUrl + ": " + description);
+                    Log.w(TAG, "Load failed for " + failingUrl + ": " + description);
                 }
 
                 @Override
