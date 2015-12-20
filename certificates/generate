@@ -36,7 +36,10 @@ certtool --generate-certificate \
 
 # Put the certificate and key for client into certificate store
 # (protected by "changeit" password). keytool is not able to import a
-# key. It's a great tool. Use PKCS12.
+# key. It's a great tool. Use PKCS12. Also, the P12 should be
+# protected by the same password as the keystore. How to specify a
+# password to protect the key inside the keystore during import is
+# still a mystery to me (keytool complains about aliases).
 rm -f client.p12 store.bks
 certtool --load-certificate client-cert.pem \
          --load-privkey client-key.pem \
