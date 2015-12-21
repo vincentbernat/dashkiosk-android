@@ -64,7 +64,7 @@
         android:key="pref_ssl_keystore_path"
         android:title="@string/pref_ssl_keystore_path"
         android:summary="@string/pref_ssl_keystore_path_summary"
-        android:defaultValue="/media/dashkiosk.bks"
+        android:defaultValue="/sdcard/dashkiosk.bks"
         android:dependency="pref_ssl_external_keystore" />
     <EditTextPreference
         android:key="pref_ssl_keystore_password"
