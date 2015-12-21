@@ -188,6 +188,8 @@ public class DashboardWebView extends XWalkView {
                             in = new FileInputStream(path);
                         } catch (FileNotFoundException e) {
                             Log.e(TAG, "Keystore `" + path + "` was not found");
+                        } catch (SecurityException e) {
+                            Log.e(TAG, "Access to keystore `" + path + "` was denied");
                         }
                         if (in != null && handleClientCertRequest(handler, in,
                                                               password, "external")) {
