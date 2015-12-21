@@ -17,6 +17,13 @@ To just build a debug APK, use:
 [Gradle]: http://www.gradle.org/
 [Android SDK]: http://developer.android.com/sdk/index.html#Other
 
+The above commands will download a SDK if one is not found. However,
+currently, they fail to download some dependencies. You can download
+them manually with:
+
+    android update sdk --no-ui --all \
+                       --filter extra-android-support,extra-android-m2repository
+
 The embedded certificates are just here as an exemple. Only the client
 certificate (along with the key) will be bundled in the
 application. Since the CA shouldn't be used anywhere, it shoudn't be a
