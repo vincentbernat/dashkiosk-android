@@ -165,6 +165,7 @@ public class DashboardActivity extends Activity {
         hideNavigationBar();
         setContentView(R.layout.main);
         mWebView = (DashboardWebView)findViewById(R.id.webview);
+        mWebView.getSettings().setMediaPlaybackRequiresUserGesture(false);
     }
 
     @Override
