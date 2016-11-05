@@ -48,12 +48,13 @@ public class DashboardActivity extends Activity {
      */
     private void hideNavigationBar() {
         final Handler handler = new Handler();
-        Runnable runable = new Runnable() {
+        final Runnable runable = new Runnable() {
                 @Override
                 public void run() {
                     try {
                         View decorView = getWindow().getDecorView();
 
+                        Log.d(TAG, "Request to hide navigation bar");
                         int flags = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
                         if (android.os.Build.VERSION.SDK_INT >= 19) {
                             SharedPreferences sharedPref = PreferenceManager
@@ -67,9 +68,11 @@ public class DashboardActivity extends Activity {
                         flags |= View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION |
                             View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN |
                             View.SYSTEM_UI_FLAG_FULLSCREEN;
+                        getActionBar().hide();
                         decorView.setSystemUiVisibility(flags);
                     } finally {
-                        handler.postDelayed(this, 20000);
+                        handler.removeCallbacks(this);
+                        handler.postDelayed(this, 10000);
                     }
                 }
             };
@@ -82,6 +85,7 @@ public class DashboardActivity extends Activity {
                     ActionBar bar = getActionBar();
 
                     if ((visibility & View.SYSTEM_UI_FLAG_HIDE_NAVIGATION) == 0) {
+                        Log.d(TAG, "Show navigation bar");
                         SharedPreferences sharedPref = PreferenceManager
                             .getDefaultSharedPreferences(getApplication());
                         if (!sharedPref.getBoolean("pref_lock_settings", false)) {
@@ -90,8 +94,11 @@ public class DashboardActivity extends Activity {
                             bar.show();
                         }
                     } else {
+                        Log.d(TAG, "Hide navigation bar");
                         bar.hide();
                     }
+                    handler.removeCallbacks(runable);
+                    handler.postDelayed(runable, 10000);
                 }
             });
 
@@ -161,6 +168,7 @@ public class DashboardActivity extends Activity {
         hideNavigationBar();
         setContentView(R.layout.main);
         mWebView = (DashboardWebView)findViewById(R.id.webview);
+        mWebView.getSettings().setMediaPlaybackRequiresUserGesture(false);
     }
 
     @Override
