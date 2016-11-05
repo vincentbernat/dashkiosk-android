@@ -294,9 +294,9 @@ public class DashboardWebView extends XWalkView {
                         // Got a heartbeat, delay deadline
                         Log.d(TAG, "Received heartbeat");
                         hideWaitScreen();
-                        mHandler.removeMessages(DEADLINE);
-                        mHandler.sendMessageDelayed(mHandler.obtainMessage(DEADLINE),
-                                                    getTimeout());
+                        this.removeMessages(DEADLINE);
+                        this.sendMessageDelayed(this.obtainMessage(DEADLINE),
+                                                getTimeout());
                         break;
                     case DEADLINE:
                         // We hit the deadline, trigger a reload
@@ -304,8 +304,8 @@ public class DashboardWebView extends XWalkView {
                         displayWaitScreen();
                         stopLoading();
                         loadReceiver();
-                        mHandler.sendMessageDelayed(mHandler.obtainMessage(DEADLINE),
-                                                    getTimeout());
+                        this.sendMessageDelayed(this.obtainMessage(DEADLINE),
+                                                getTimeout());
                         break;
                     }
                 }

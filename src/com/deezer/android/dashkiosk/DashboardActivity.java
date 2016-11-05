@@ -54,7 +54,6 @@ public class DashboardActivity extends Activity {
                     try {
                         View decorView = getWindow().getDecorView();
 
-                        Log.d(TAG, "Request to hide navigation bar");
                         int flags = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
                         if (android.os.Build.VERSION.SDK_INT >= 19) {
                             SharedPreferences sharedPref = PreferenceManager
