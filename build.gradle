@@ -1,3 +1,5 @@
+buildDir = "$rootDir/build~"
+
 buildscript {
     repositories {
         mavenCentral()
