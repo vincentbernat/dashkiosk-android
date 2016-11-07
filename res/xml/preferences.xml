@@ -43,12 +43,6 @@
       android:title="@string/pref_ssl_title"
       android:key="pref_ssl_settings">
     <CheckBoxPreference
-        android:key="pref_insecure_ssl"
-        android:title="@string/pref_ssl_insecure"
-        android:summaryOn="@string/pref_ssl_insecure_on"
-        android:summaryOff="@string/pref_ssl_insecure_off"
-        android:defaultValue="false" />
-    <CheckBoxPreference
         android:key="pref_ssl_embedded_keystore"
         android:title="@string/pref_ssl_embedded_keystore"
         android:summaryOn="@string/pref_ssl_embedded_keystore_on"
