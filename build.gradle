@@ -2,12 +2,11 @@ buildDir = "$rootDir/build~"
 
 buildscript {
     repositories {
-        mavenCentral()
+        jcenter()
     }
 
     dependencies {
-        classpath 'com.jakewharton.sdkmanager:gradle-plugin:0.12.+'
-        classpath 'com.android.tools.build:gradle:0.14.+'
+        classpath 'com.android.tools.build:gradle:2.2.0'
     }
 }
 
@@ -17,7 +16,6 @@ repositories {
     }
 }
 
-apply plugin: 'android-sdk-manager'
 apply plugin: 'com.android.application'
 
 dependencies {
@@ -46,7 +44,7 @@ android {
     }
 
     compileSdkVersion 21
-    buildToolsVersion "21.1.2"
+    buildToolsVersion "25.0.0"
 
     File localPropertiesFile = rootProject.file('local.properties')
     if (localPropertiesFile.exists()) {
@@ -90,5 +88,5 @@ tasks.whenTaskAdded { theTask ->
 
 // Create the wrapper
 task wrapper(type: Wrapper) {
-    gradleVersion = '2.2.1'
+    gradleVersion = '2.14.1'
 }

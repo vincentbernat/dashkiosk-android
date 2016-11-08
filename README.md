@@ -6,7 +6,8 @@ documentation is on [ReadTheDocs][].
 
 # Compilation
 
-This project uses Gradle. To compile, just use:
+As a prerequisite, download the [Android SDK][], unpack it and ensure
+`bin/android` is somewhere on your `PATH`. Then, to compile, just use:
 
     ./gradlew assemble
 
@@ -14,7 +15,6 @@ To just build a debug APK, use:
 
     ./gradlew assembleDebug
 
-[Gradle]: http://www.gradle.org/
 [Android SDK]: http://developer.android.com/sdk/index.html#Other
 
 The above commands will download a SDK if one is not found. However,
