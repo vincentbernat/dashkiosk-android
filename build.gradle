@@ -7,7 +7,7 @@ buildscript {
 
     dependencies {
         classpath 'com.jakewharton.sdkmanager:gradle-plugin:0.12.+'
-        classpath 'com.android.tools.build:gradle:0.14.+'
+        classpath 'com.android.tools.build:gradle:2.2.2'
     }
 }
 
@@ -17,7 +17,6 @@ repositories {
     }
 }
 
-apply plugin: 'android-sdk-manager'
 apply plugin: 'com.android.application'
 
 dependencies {

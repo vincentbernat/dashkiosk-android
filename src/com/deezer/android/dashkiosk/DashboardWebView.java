@@ -68,6 +68,7 @@ public class DashboardWebView extends XWalkView {
     public DashboardWebView(Context context, AttributeSet attrs) {
         super(context, attrs);
         mContext = context;
+        getSettings().setMediaPlaybackRequiresUserGesture(false);
     }
 
     @Override
