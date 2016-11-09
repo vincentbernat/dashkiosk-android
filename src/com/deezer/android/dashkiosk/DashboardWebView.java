@@ -83,6 +83,7 @@ public class DashboardWebView extends XWalkView {
     protected void onAttachedToWindow() {
         XWalkPreferences.setValue(XWalkPreferences.REMOTE_DEBUGGING, true);
         XWalkPreferences.setValue(XWalkPreferences.JAVASCRIPT_CAN_OPEN_WINDOW, false);
+        getSettings().setMediaPlaybackRequiresUserGesture(false);
 
         /* Don't show error dialogs */
         this.setResourceClient(new XWalkResourceClient(this) {
