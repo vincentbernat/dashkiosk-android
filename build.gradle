@@ -27,28 +27,25 @@ android {
         main {
             manifest.srcFile 'AndroidManifest.xml'
             java.srcDirs = ['src']
-            resources.srcDirs = ['src']
-            aidl.srcDirs = ['src']
-            renderscript.srcDirs = ['src']
             res.srcDirs = ['res']
-            assets.srcDirs = ['assets']
         }
     }
 
     compileSdkVersion 21
     buildToolsVersion "25.0.0"
 
-    File localPropertiesFile = rootProject.file('local.properties')
+    // Password signing for release
+    def localPropertiesFile = rootProject.file('local.properties')
     if (localPropertiesFile.exists()) {
-        Properties localProperties = new Properties()
+        def localProperties = new Properties()
         localProperties.load(new FileInputStream(localPropertiesFile))
-        if (localProperties.getProperty("key.store")) {
+        if (localProperties.getProperty("sign.store.file")) {
             signingConfigs {
                 release {
-                    storeFile file(localProperties.getProperty("key.store"))
-                    keyAlias localProperties.getProperty("key.alias", "dashkiosk")
-                    storePassword localProperties.getProperty("key.store.password", "")
-                    keyPassword localProperties.getProperty("key.alias.password", "")
+                    storeFile file(localProperties.getProperty("sign.store.file"))
+                    keyAlias localProperties.getProperty("sign.key.alias", "dashkiosk")
+                    storePassword localProperties.getProperty("sign.store.password", "")
+                    keyPassword localProperties.getProperty("sign.key.password", "")
                 }
             }
             buildTypes {
@@ -61,20 +58,16 @@ android {
 
 }
 
-// Ask for passwords when signing
-task askForPasswords << {
-    if (android.hasProperty("signingConfigs") && android.signingConfigs.hasProperty("release")) {
-        if (android.signingConfigs.release.storePassword == "") {
-            android.signingConfigs.release.storePassword = new String(System.console().readPassword("\n** Keystore password: "))
-        }
-        if (android.signingConfigs.release.keyPassword == "") {
-           android.signingConfigs.release.keyPassword = new String(System.console().readPassword("\n** Key password: "))
-        }
-    }
-}
-tasks.whenTaskAdded { theTask ->
-    if (theTask.name.equals("packageRelease")) {
-        theTask.dependsOn "askForPasswords"
+// Prompting for passwords if needed. Use "./gradlew -q
+// assembleRelease" to not get a mangled output.
+gradle.taskGraph.whenReady { taskGraph ->
+    if (android.hasProperty("signingConfigs") &&
+        android.signingConfigs.hasProperty("release") &&
+        taskGraph.hasTask(":assembleRelease")) {
+        def console = System.console()
+        def release = android.signingConfigs.release
+        release.storePassword = release.storePassword || new String(console.readPassword("> Keystore password: "))
+        release.keyPassword = release.keyPassword || new String(console.readPassword("> Key password: "))
     }
 }
 
