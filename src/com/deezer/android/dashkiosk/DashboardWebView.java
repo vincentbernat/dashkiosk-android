@@ -35,6 +35,7 @@ import android.webkit.ValueCallback;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.io.IOException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.cert.Certificate;
@@ -111,25 +112,11 @@ public class DashboardWebView extends XWalkView {
                     KeyStore keystore = null;
                     char[] password = (pass.length() > 0)?pass.toCharArray():null;
                     try {
-                        try {
-                            keystore = KeyStore.getInstance("BKS");
-                        } catch (Exception e) {
-                            Log.e(TAG, "Unable to create a new BKS keystore", e);
-                            handler.cancel();
-                            return true;
-                        }
-                        try {
-                            keystore.load(in, password);
-                        } catch (Exception e) {
-                            Log.e(TAG, "Unable to open " + type + "store", e);
-                            return false;
-                        }
-                    } finally {
-                        try {
-                            in.close();
-                        } catch (Exception e) {
-                            // Don't do anything.
-                        }
+                        keystore = KeyStore.getInstance("BKS");
+                        keystore.load(in, password);
+                    } catch (Exception e) {
+                        Log.e(TAG, "Unable to open " + type + "store", e);
+                        return false;
                     }
 
                     /* Iterate over available certificates */
@@ -183,25 +170,32 @@ public class DashboardWebView extends XWalkView {
 
                     if (external) {
                         Log.d(TAG, "Looking for external store `" + path + "`");
-                        FileInputStream in = null;
                         try {
-                            in = new FileInputStream(path);
+                            try (FileInputStream in = new FileInputStream(path)) {
+                                if (handleClientCertRequest(handler, in,
+                                                            password, "external")) {
+                                    return;
+                                }
+                            }
                         } catch (FileNotFoundException e) {
                             Log.e(TAG, "Keystore `" + path + "` was not found");
                         } catch (SecurityException e) {
                             Log.e(TAG, "Access to keystore `" + path + "` was denied");
-                        }
-                        if (in != null && handleClientCertRequest(handler, in,
-                                                              password, "external")) {
-                            return;
+                        } catch (IOException e) {
+                            Log.e(TAG, "Cannot handle keystore `" + path + "`", e);
                         }
                     }
                     if (embedded) {
                         Log.d(TAG, "Looking for embedded store");
-                        InputStream in = getResources().openRawResource(R.raw.clientstore);
-                        if (in != null && handleClientCertRequest(handler, in,
-                                                              password, "embedded")) {
-                            return;
+                        try {
+                            try (InputStream in = getResources().openRawResource(R.raw.clientstore)) {
+                                if (handleClientCertRequest(handler, in,
+                                                            password, "embedded")) {
+                                    return;
+                                }
+                            }
+                        } catch (IOException e)  {
+                            Log.e(TAG, "Cannot handle embedded keystore", e);
                         }
                     }
 
