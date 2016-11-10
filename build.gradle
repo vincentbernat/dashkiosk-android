@@ -6,7 +6,10 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.2.0'
+        classpath 'com.android.tools.build:gradle:2.2.+'
+        classpath 'com.android.tools.build:transform-api:1.5.+'
+        classpath 'org.javassist:javassist:3.21.+'
+        classpath 'commons-io:commons-io:2.4'
     }
 }
 
@@ -75,3 +78,148 @@ gradle.taskGraph.whenReady { taskGraph ->
 task wrapper(type: Wrapper) {
     gradleVersion = '2.14.1'
 }
+
+// Patch
+import com.android.build.api.transform.Context
+import com.android.build.api.transform.Format
+import com.android.build.api.transform.QualifiedContent
+import com.android.build.api.transform.Status
+import com.android.build.api.transform.Transform
+import com.android.build.api.transform.TransformException
+import com.android.build.api.transform.TransformInput
+import com.android.build.api.transform.TransformOutputProvider
+import java.util.jar.JarEntry
+import java.util.jar.JarFile
+import java.util.jar.JarOutputStream
+import javassist.ClassPath
+import javassist.ClassPool
+import javassist.CtNewMethod
+import org.apache.commons.io.FileUtils
+import org.apache.commons.io.IOUtils
+import org.gradle.api.logging.Logger
+class PatchXWalkTransform extends Transform {
+    Logger logger = null;
+    String androidJar = "";
+
+    public PatchXWalkTransform(Logger logger, String androidJar) {
+        this.logger = logger
+        this.androidJar = androidJar
+    }
+
+    @Override
+    String getName() {
+        return "PatchXWalk"
+    }
+
+    @Override
+    Set<QualifiedContent.ContentType> getInputTypes() {
+        return Collections.singleton(QualifiedContent.DefaultContentType.CLASSES)
+    }
+
+    @Override
+    Set<QualifiedContent.Scope> getScopes() {
+        return Collections.singleton(QualifiedContent.Scope.EXTERNAL_LIBRARIES)
+    }
+
+    @Override
+    boolean isIncremental() {
+        return true
+    }
+
+    @Override
+    void transform(Context context,
+                   Collection<TransformInput> inputs,
+                   Collection<TransformInput> referencedInputs,
+                   TransformOutputProvider outputProvider,
+                   boolean isIncremental) throws IOException, TransformException, InterruptedException {
+        def pool = new ClassPool()
+        pool.insertClassPath(this.androidJar)
+        File patchedSrc = null
+        File patchedDst = null
+        inputs.each {
+            it.jarInputs.each {
+                def jarName = it.name
+                def src = it.getFile()
+                def dest = outputProvider.getContentLocation(jarName, it.contentTypes, it.scopes, Format.JAR);
+                def status = it.getStatus()
+                if (status == Status.REMOVED) {
+                    logger.info("Remove ${src}")
+                    FileUtils.delete(dest)
+                } else if (!isIncremental || status != Status.NOTCHANGED) {
+                    pool.insertClassPath("${src}")
+                    if (src.toString() ==~ /.*\/org\.xwalk\/xwalk_core.*\/classes\.jar/) {
+                        patchedSrc = src
+                        patchedDst = dest
+                        // We need to load other jars before patching
+                    } else {
+                        logger.info("Copy ${src}")
+                        FileUtils.copyFile(src, dest)
+                    }
+                } else {
+                    pool.insertClassPath("${src}")
+                }
+            }
+        }
+        if (patchedSrc && patchedDst) {
+            def src = patchedSrc
+            logger.info("Patching ${src}")
+
+            // Patch SslUtil.class
+            def ctc = pool.get('org.xwalk.core.internal.SslUtil')
+            logger.debug("Replace SslUtil#shouldDenyRequest")
+            def ctm = ctc.getDeclaredMethod('shouldDenyRequest')
+            ctc.removeMethod(ctm)
+            ctc.addMethod(CtNewMethod.make("""
+public static boolean shouldDenyRequest(int error) {
+    return false;
+}
+""",
+                                           ctc))
+            logger.debug("Replace SslUtil#sslErrorFromNetErrorCode")
+            ctm = ctc.getDeclaredMethod('sslErrorFromNetErrorCode')
+            ctc.removeMethod(ctm)
+            ctc.addMethod(CtNewMethod.make("""
+public static android.net.http.SslError sslErrorFromNetErrorCode(int error,
+                                                                 android.net.http.SslCertificate cert,
+                                                                 String url) {
+    switch(error) {
+        case org.chromium.net.NetError.ERR_CERT_COMMON_NAME_INVALID:
+            return new android.net.http.SslError(android.net.http.SslError.SSL_IDMISMATCH, cert, url);
+        case org.chromium.net.NetError.ERR_CERT_DATE_INVALID:
+            return new android.net.http.SslError(android.net.http.SslError.SSL_DATE_INVALID, cert, url);
+        case org.chromium.net.NetError.ERR_CERT_AUTHORITY_INVALID:
+            return new android.net.http.SslError(android.net.http.SslError.SSL_UNTRUSTED, cert, url);
+        default:
+            break;
+    }
+    return new android.net.http.SslError(android.net.http.SslError.SSL_INVALID, cert, url);
+}
+""",
+                                           ctc))
+            logger.debug("Generate bytecode for SslUtil")
+            def sslUtilBytecode = ctc.toBytecode()
+
+            // Write back the JAR file
+            def input = new JarFile(src)
+            def output = new JarOutputStream(new FileOutputStream(patchedDst))
+            def buffer = new byte[4096]
+            input.entries().each {
+                if (!it.getName().equals("org/xwalk/core/internal/SslUtil.class")) {
+                    logger.debug("Write back ${it.getName()} to JAR")
+                    def s = input.getInputStream(it)
+                    output.putNextEntry(new JarEntry(it.getName()))
+                    IOUtils.copy(s, output)
+                    s.close()
+                }
+            }
+            logger.debug("Write back modified class to JAR")
+            output.putNextEntry(new JarEntry("org/xwalk/core/internal/SslUtil.class"))
+            output.write(sslUtilBytecode)
+            output.close()
+        }
+    }
+}
+android.registerTransform(
+    new PatchXWalkTransform(logger,
+                            "${android.getSdkDirectory().getAbsolutePath()}/platforms/" +
+                            "${android.getCompileSdkVersion()}/android.jar"))

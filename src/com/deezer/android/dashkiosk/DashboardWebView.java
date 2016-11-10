@@ -111,6 +111,7 @@ public class DashboardWebView extends XWalkView {
                         !error.hasError(SslError.SSL_IDMISMATCH) &&
                         !error.hasError(SslError.SSL_INVALID)) {
                         // The certificate is "only" untrusted and we allow this.
+                        Log.d(TAG, "Accept untrusted certificate " + error.getCertificate());
                         callback.onReceiveValue(true);
                         return;
                     }
