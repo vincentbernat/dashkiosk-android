@@ -15,14 +15,11 @@ To just build a debug APK, use:
 
     ./gradlew assembleDebug
 
+If the build process complains about licensing, you need
+to [manually accept the licenses][] with the SDK manager GUI tool.
+
 [Android SDK]: http://developer.android.com/sdk/index.html#Other
-
-The above commands will download a SDK if one is not found. However,
-currently, they fail to download some dependencies. You can download
-them manually with:
-
-    android update sdk --no-ui --all \
-                       --filter extra-android-support,extra-android-m2repository
+[manually accept the licenses]: https://developer.android.com/studio/intro/update.html#download-with-gradle
 
 The embedded certificates are just here as an exemple. Only the client
 certificate (along with the key) will be bundled in the
