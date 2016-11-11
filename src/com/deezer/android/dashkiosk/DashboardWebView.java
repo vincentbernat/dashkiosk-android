@@ -36,6 +36,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.cert.Certificate;
@@ -63,7 +64,7 @@ public class DashboardWebView extends XWalkView {
     private static final int ALIVE = 1;
     private static final int DEADLINE = 2;
     private Context mContext;
-    private Handler mHandler = null;
+    private final Handler mHandler = new HeartbeatHandler(this);
     private DashboardWaitscreen mWaitscreen = null;
 
     public DashboardWebView(Context context, AttributeSet attrs) {
@@ -76,7 +77,6 @@ public class DashboardWebView extends XWalkView {
         this.hideWaitScreen();
         this.mHandler.removeMessages(ALIVE);
         this.mHandler.removeMessages(DEADLINE);
-        this.mHandler = null;
         Log.d(TAG, "Webview paused");
     }
 
@@ -280,6 +280,8 @@ public class DashboardWebView extends XWalkView {
         this.displayWaitScreen();
         this.heartbeat();
         this.loadReceiver();
+        mHandler.sendMessageDelayed(mHandler.obtainMessage(DEADLINE),
+                                    getTimeout());
         Log.d(TAG, "Webview started");
     }
 
@@ -298,35 +300,39 @@ public class DashboardWebView extends XWalkView {
         mWaitscreen = null;
     }
 
-    // Trigger a reload if we miss an heartbeat
-    private void heartbeat() {
-        this.mHandler = new Handler() {
-                @Override
-                public void handleMessage(Message input) {
-                    switch (input.what) {
-                    case ALIVE:
-                        // Got a heartbeat, delay deadline
-                        Log.d(TAG, "Received heartbeat");
-                        hideWaitScreen();
-                        this.removeMessages(DEADLINE);
-                        this.sendMessageDelayed(this.obtainMessage(DEADLINE),
-                                                getTimeout());
-                        break;
-                    case DEADLINE:
-                        // We hit the deadline, trigger a reload
-                        Log.i(TAG, "No activity from supervised URL. Trigger reload.");
-                        displayWaitScreen();
-                        stopLoading();
-                        loadReceiver();
-                        this.sendMessageDelayed(this.obtainMessage(DEADLINE),
-                                                getTimeout());
-                        break;
-                    }
-                }
-            };
+    private static class HeartbeatHandler extends Handler {
+        private final WeakReference<DashboardWebView> mParent;
 
-        mHandler.sendMessageDelayed(mHandler.obtainMessage(DEADLINE),
-                                    getTimeout());
+        public HeartbeatHandler(DashboardWebView parent) {
+            mParent = new WeakReference<DashboardWebView>(parent);
+        }
+
+        @Override
+        public void handleMessage(Message input) {
+            DashboardWebView parent = mParent.get();
+            if (parent == null) {
+                return;
+            }
+            switch (input.what) {
+            case ALIVE:
+                // Got a heartbeat, delay deadline
+                Log.d(TAG, "Received heartbeat");
+                parent.hideWaitScreen();
+                this.removeMessages(DEADLINE);
+                this.sendMessageDelayed(this.obtainMessage(DEADLINE),
+                                        parent.getTimeout());
+                break;
+            case DEADLINE:
+                // We hit the deadline, trigger a reload
+                Log.i(TAG, "No activity from supervised URL. Trigger reload.");
+                parent.displayWaitScreen();
+                parent.stopLoading();
+                parent.loadReceiver();
+                this.sendMessageDelayed(this.obtainMessage(DEADLINE),
+                                        parent.getTimeout());
+                break;
+            }
+        }
     }
 
     private void loadReceiver() {
