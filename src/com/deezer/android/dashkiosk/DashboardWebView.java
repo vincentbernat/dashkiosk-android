@@ -185,11 +185,14 @@ public class DashboardWebView extends XWalkView {
                     if (external) {
                         Log.d(TAG, "Looking for external store `" + path + "`");
                         try {
-                            try (FileInputStream in = new FileInputStream(path)) {
+                            FileInputStream in = new FileInputStream(path);
+                            try {
                                 if (handleClientCertRequest(handler, in,
                                                             password, "external")) {
                                     return;
                                 }
+                            } finally {
+                                in.close();
                             }
                         } catch (FileNotFoundException e) {
                             Log.e(TAG, "Keystore `" + path + "` was not found");
@@ -202,11 +205,14 @@ public class DashboardWebView extends XWalkView {
                     if (embedded) {
                         Log.d(TAG, "Looking for embedded store");
                         try {
-                            try (InputStream in = getResources().openRawResource(R.raw.clientstore)) {
+                            InputStream in = getResources().openRawResource(R.raw.clientstore);
+                            try {
                                 if (handleClientCertRequest(handler, in,
                                                             password, "embedded")) {
                                     return;
                                 }
+                            } finally {
+                                in.close();
                             }
                         } catch (IOException e)  {
                             Log.e(TAG, "Cannot handle embedded keystore", e);
