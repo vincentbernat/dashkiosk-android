@@ -3,3 +3,4 @@ android:
   component:
     - tools
     - tools
+    - build-tools-25.0.0
