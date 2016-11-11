@@ -37,11 +37,11 @@ public class DashboardWaitscreen extends Dialog {
     public DashboardWaitscreen(Context context) {
         super(context);
         mContext = context;
-        this.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        this.setContentView(R.layout.wait);
-        this.setCancelable(false);
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        setContentView(R.layout.wait);
+        setCancelable(false);
 
-        Window window = this.getWindow();
+        Window window = getWindow();
         window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT,
                          ViewGroup.LayoutParams.MATCH_PARENT);
         window.setBackgroundDrawable(new ColorDrawable(0));

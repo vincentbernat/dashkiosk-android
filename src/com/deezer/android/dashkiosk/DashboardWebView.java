@@ -74,9 +74,9 @@ public class DashboardWebView extends XWalkView {
 
     @Override
     protected void onDetachedFromWindow() {
-        this.hideWaitScreen();
-        this.mHandler.removeMessages(ALIVE);
-        this.mHandler.removeMessages(DEADLINE);
+        hideWaitScreen();
+        mHandler.removeMessages(ALIVE);
+        mHandler.removeMessages(DEADLINE);
         super.onDetachedFromWindow();
         Log.d(TAG, "Webview paused");
     }
@@ -89,7 +89,7 @@ public class DashboardWebView extends XWalkView {
         clearSslPreferences();
 
         /* Don't show error dialogs */
-        this.setResourceClient(new XWalkResourceClient(this) {
+        setResourceClient(new XWalkResourceClient(this) {
                 @Override
                 public void onReceivedLoadError(XWalkView view,
                                                 int errorCode,
@@ -229,7 +229,7 @@ public class DashboardWebView extends XWalkView {
             });
 
         /* Ignore most interactions */
-        this.setUIClient(new XWalkUIClient(this) {
+        setUIClient(new XWalkUIClient(this) {
                 @Override
                 public void onFullscreenToggled(XWalkView view, boolean enterFullscreen) {
                     Log.d(TAG, "Ignore fullscreen request");
@@ -261,7 +261,7 @@ public class DashboardWebView extends XWalkView {
             });
 
         /* Provide an interface for readiness */
-        this.addJavascriptInterface(new Object() {
+        addJavascriptInterface(new Object() {
                 @JavascriptInterface
                 public void ready() {
                     mHandler.sendMessage(mHandler.obtainMessage(ALIVE));
@@ -319,9 +319,9 @@ public class DashboardWebView extends XWalkView {
                 // Got a heartbeat, delay deadline
                 Log.d(TAG, "Received heartbeat");
                 parent.hideWaitScreen();
-                this.removeMessages(DEADLINE);
-                this.sendMessageDelayed(this.obtainMessage(DEADLINE),
-                                        parent.getTimeout());
+                removeMessages(DEADLINE);
+                sendMessageDelayed(obtainMessage(DEADLINE),
+                                   parent.getTimeout());
                 break;
             case DEADLINE:
                 // We hit the deadline, trigger a reload
@@ -329,8 +329,8 @@ public class DashboardWebView extends XWalkView {
                 parent.displayWaitScreen();
                 parent.stopLoading();
                 parent.loadReceiver();
-                this.sendMessageDelayed(this.obtainMessage(DEADLINE),
-                                        parent.getTimeout());
+                sendMessageDelayed(obtainMessage(DEADLINE),
+                                   parent.getTimeout());
                 break;
             }
         }
@@ -343,7 +343,7 @@ public class DashboardWebView extends XWalkView {
         String appVer = getResources().getString(R.string.app_versionName);
         String url = pingURL + "?v=" + appVer;
         Log.d(TAG, "Loading " + url);
-        this.load(url, null);
+        load(url, null);
     }
 
     private int getTimeout() {
