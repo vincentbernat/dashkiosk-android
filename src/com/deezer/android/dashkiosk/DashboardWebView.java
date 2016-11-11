@@ -77,6 +77,7 @@ public class DashboardWebView extends XWalkView {
         this.hideWaitScreen();
         this.mHandler.removeMessages(ALIVE);
         this.mHandler.removeMessages(DEADLINE);
+        super.onDetachedFromWindow();
         Log.d(TAG, "Webview paused");
     }
 
@@ -277,11 +278,11 @@ public class DashboardWebView extends XWalkView {
                 }
             }, "JSInterface");
 
-        this.displayWaitScreen();
-        this.heartbeat();
-        this.loadReceiver();
+        displayWaitScreen();
+        loadReceiver();
         mHandler.sendMessageDelayed(mHandler.obtainMessage(DEADLINE),
                                     getTimeout());
+        super.onAttachedToWindow();
         Log.d(TAG, "Webview started");
     }
 

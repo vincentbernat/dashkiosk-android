@@ -37,6 +37,10 @@ android {
     compileSdkVersion 21
     buildToolsVersion "25.0.0"
 
+    lintOptions {
+        disable 'MissingTvBanner', 'GradleDynamicVersion', 'GoogleAppIndexingWarning'
+    }
+
     // Password signing for release
     def localPropertiesFile = rootProject.file('local.properties')
     if (localPropertiesFile.exists()) {
