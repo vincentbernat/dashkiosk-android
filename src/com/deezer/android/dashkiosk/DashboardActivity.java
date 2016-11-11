@@ -142,7 +142,7 @@ public class DashboardActivity extends Activity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.action_edit) {
+        if (item.getItemId() == R.id.action_settings) {
             startActivity(new Intent(this, DashboardPreferences.class));
             return true;
         }
