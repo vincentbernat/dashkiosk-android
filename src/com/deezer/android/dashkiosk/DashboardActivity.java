@@ -163,8 +163,6 @@ public class DashboardActivity extends Activity {
         Log.i(TAG, "Main activity created");
         PreferenceManager.setDefaultValues(this, R.xml.preferences, true);
         setScreenOn();
-        setOrientation();
-        hideNavigationBar();
         setContentView(R.layout.main);
         mWebView = (DashboardWebView)findViewById(R.id.webview);
     }
@@ -181,7 +179,10 @@ public class DashboardActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
+        setOrientation();
+        hideNavigationBar();
         if (mWebView != null) {
+            mWebView.clearSslPreferences();
             mWebView.resumeTimers();
             mWebView.onShow();
         }
