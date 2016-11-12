@@ -41,6 +41,7 @@ import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
+import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -136,6 +137,8 @@ public class DashboardWebView extends XWalkView {
 
                     /* Iterate over available certificates */
                     try {
+                        KeyStore.PasswordProtection pp = new KeyStore.PasswordProtection(password);
+                        KeyStore.PrivateKeyEntry entry = null;
                         Enumeration<String> aliases = keystore.aliases();
                         while (aliases.hasMoreElements()) {
                             String alias = aliases.nextElement();
@@ -143,19 +146,40 @@ public class DashboardWebView extends XWalkView {
                                 Log.d(TAG, "Entry `" + alias + "` is not a private key, skip");
                                 continue;
                             }
-                            KeyStore.PrivateKeyEntry entry = null;
+
+                            // Extract private key
                             try {
-                                entry = (KeyStore.PrivateKeyEntry)keystore.getEntry(
-                                    alias, new KeyStore.PasswordProtection(password));
+                                entry = (KeyStore.PrivateKeyEntry)keystore.getEntry(alias, pp);
                             } catch (Exception e) {
                                 Log.e(TAG, "Unable to get entry `" + alias + "`", e);
                                 continue;
                             }
-                            Log.d(TAG, "Got a private key!");
+
+                            // Check the type
+                            if (entry.getCertificate().getType() != "X.509") {
+                                Log.d(TAG, "Entry `" + alias + "` doesn't have the right type (" +
+                                      entry.getCertificate().getType() + ")");
+                                continue;
+                            }
+
+                            // TODO: We should match getSigAlgName() with handler.getKeyTypes().
+
+                            // Check the principal
+                            X509Certificate cert = (X509Certificate)entry.getCertificate();
+                            String issuerName = cert.getIssuerX500Principal().getName();
+                            if (!Arrays.asList(handler.getPrincipals()).contains(cert.getIssuerX500Principal())) {
+                                Log.d(TAG, "Entry `" + alias + "` doesn't have the right issuer (" +
+                                      issuerName + ")");
+                                continue;
+                            }
+
+                            // Build the certificate chain
                             ArrayList<X509Certificate> chain = new ArrayList<X509Certificate>();
                             for (Certificate c : entry.getCertificateChain()) {
                                 chain.add((X509Certificate)c);
                             }
+                            Log.i(TAG, "Using entry `" + alias + "` in " + type +
+                                  " as a private key for " + handler.getHost());
                             handler.proceed(entry.getPrivateKey(), chain);
                             return true;
                         }
@@ -172,9 +196,13 @@ public class DashboardWebView extends XWalkView {
                 public void onReceivedClientCertRequest(XWalkView view,
                                                         ClientCertRequest handler) {
                     Log.d(TAG, "Client certificate requested for " + handler.getHost());
-                    /* Unfortunately, not implemented yet in Crosswalk */
-                    // Log.d(TAG, "Accepted key types: " + TextUtils.join(", ", handler.getKeyTypes()));
-                    // Log.d(TAG, "Accepted principals: " + TextUtils.join(", ", handler.getPrincipals()));
+                    if (handler.getKeyTypes() == null || handler.getPrincipals() == null) {
+                        Log.w(TAG, "No key can be accepted");
+                    }
+                    Log.d(TAG, "Accepted key types: " +
+                          TextUtils.join(", ", handler.getKeyTypes()) + " (ignored)");
+                    Log.d(TAG, "Accepted principals: " +
+                          TextUtils.join(", ", handler.getPrincipals()));
 
                     SharedPreferences sharedPref = PreferenceManager
                         .getDefaultSharedPreferences(mContext);
