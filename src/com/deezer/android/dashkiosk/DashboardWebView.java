@@ -162,7 +162,8 @@ public class DashboardWebView extends XWalkView {
                                 continue;
                             }
 
-                            // TODO: We should match getSigAlgName() with handler.getKeyTypes().
+                            // TODO: We should match the private key class (RSAPrivateKey,
+                            //       DSAPrivateKey, ECPrivateKey) with handler.getKeyTypes().
 
                             // Check the principal
                             X509Certificate cert = (X509Certificate)entry.getCertificate();
