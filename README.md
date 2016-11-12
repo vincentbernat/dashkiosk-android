@@ -13,7 +13,7 @@ As a prerequisite, download the [Android SDK][], unpack it and ensure
 
 To just build a debug APK, use:
 
-    ./gradlew assembleDebug
+    ./gradlew --daemon assembleDebug
 
 If the build process complains about licensing, you need
 to [manually accept the licenses][] with the SDK manager GUI tool.
