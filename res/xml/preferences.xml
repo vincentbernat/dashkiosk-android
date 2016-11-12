@@ -6,7 +6,7 @@
     <ListPreference
         android:key="pref_general_orientation"
         android:title="@string/pref_general_orientation"
-        android:summary="@string/pref_general_orientation_summary"
+        android:summary="%s"
         android:entries="@array/pref_general_orientation_entries"
         android:entryValues="@array/pref_general_orientation_values"
         android:defaultValue="LANDSCAPE" />
@@ -34,7 +34,7 @@
     <ListPreference
         android:key="pref_ping_timeout"
         android:title="@string/pref_ping_timeout"
-        android:summary="@string/pref_ping_timeout_summary"
+        android:summary="%s"
         android:entries="@array/pref_ping_timeout_entries"
         android:entryValues="@array/pref_ping_timeout_values"
         android:defaultValue="30000" />

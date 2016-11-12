@@ -4,8 +4,7 @@
     <string name="app_versionName">2.7.0</string>
     <string name="preferences">Dashkiosk preferences</string>
     <string name="pref_general_title">General settings</string>
-    <string name="pref_general_orientation">Orientation</string>
-    <string name="pref_general_orientation_summary">Device orientation</string>
+    <string name="pref_general_orientation">Device orientation</string>
     <string name="pref_lock_settings">Lock settings</string>
     <string name="pref_lock_settings_summary_on">Forbid settings modification from the application</string>
     <string name="pref_lock_settings_summary_off">Allow to modify settings from the application</string>
@@ -16,7 +15,6 @@
     <string name="pref_ping_url">URL</string>
     <string name="pref_ping_url_summary">URL to the dashboard web application</string>
     <string name="pref_ping_timeout">Timeout</string>
-    <string name="pref_ping_timeout_summary">Timeout in milliseconds when retrieving URL</string>
     <string name="pref_ssl_title">TLS</string>
     <string name="pref_ssl_insecure">Insecure TLS</string>
     <string name="pref_ssl_insecure_on">Allow untrusted certificates</string>
