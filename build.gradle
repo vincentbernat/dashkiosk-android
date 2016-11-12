@@ -182,17 +182,20 @@ public static boolean shouldDenyRequest(int error) {
             logger.debug("Replace SslUtil#sslErrorFromNetErrorCode")
             ctm = ctc.getDeclaredMethod('sslErrorFromNetErrorCode')
             ctc.removeMethod(ctm)
+            pool.importPackage('android.net.http.SslCertificate');
+            pool.importPackage('android.net.http.SslError');
+            pool.importPackage('org.chromium.net.NetError');
             ctc.addMethod(CtNewMethod.make("""
 public static android.net.http.SslError sslErrorFromNetErrorCode(int error,
-                                                                 android.net.http.SslCertificate cert,
+                                                                 SslCertificate cert,
                                                                  String url) {
     switch(error) {
-        case org.chromium.net.NetError.ERR_CERT_COMMON_NAME_INVALID:
-            return new android.net.http.SslError(android.net.http.SslError.SSL_IDMISMATCH, cert, url);
-        case org.chromium.net.NetError.ERR_CERT_DATE_INVALID:
-            return new android.net.http.SslError(android.net.http.SslError.SSL_DATE_INVALID, cert, url);
-        case org.chromium.net.NetError.ERR_CERT_AUTHORITY_INVALID:
-            return new android.net.http.SslError(android.net.http.SslError.SSL_UNTRUSTED, cert, url);
+        case NetError.ERR_CERT_COMMON_NAME_INVALID:
+            return new SslError(SslError.SSL_IDMISMATCH, cert, url);
+        case NetError.ERR_CERT_DATE_INVALID:
+            return new SslError(SslError.SSL_DATE_INVALID, cert, url);
+        case NetError.ERR_CERT_AUTHORITY_INVALID:
+            return new SslError(SslError.SSL_UNTRUSTED, cert, url);
         default:
             break;
     }
