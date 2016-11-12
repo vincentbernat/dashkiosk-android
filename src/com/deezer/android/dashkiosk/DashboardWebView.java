@@ -32,19 +32,11 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.ValueCallback;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
-import java.io.IOException;
 import java.lang.ref.WeakReference;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
+import java.security.KeyStore.PrivateKeyEntry;
 import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
-import java.util.Arrays;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Enumeration;
 import org.xwalk.core.ClientCertRequest;
 import org.xwalk.core.JavascriptInterface;
 import org.xwalk.core.XWalkJavascriptResult;
@@ -54,6 +46,7 @@ import org.xwalk.core.XWalkUIClient;
 import org.xwalk.core.XWalkView;
 
 import com.deezer.android.dashkiosk.DashboardWaitscreen;
+import com.deezer.android.dashkiosk.CertStore;
 
 /**
  * Fullscreen web view that is setup for kiosk mode: no interaction
@@ -121,78 +114,6 @@ public class DashboardWebView extends XWalkView {
                     callback.onReceiveValue(false);
                 }
 
-                private Boolean handleClientCertRequest(ClientCertRequest handler,
-                                                        InputStream in,
-                                                        String pass,
-                                                        String type) {
-                    KeyStore keystore = null;
-                    char[] password = (pass.length() > 0)?pass.toCharArray():null;
-                    try {
-                        keystore = KeyStore.getInstance("BKS");
-                        keystore.load(in, password);
-                    } catch (Exception e) {
-                        Log.e(TAG, "Unable to open " + type + "store", e);
-                        return false;
-                    }
-
-                    /* Iterate over available certificates */
-                    try {
-                        KeyStore.PasswordProtection pp = new KeyStore.PasswordProtection(password);
-                        KeyStore.PrivateKeyEntry entry = null;
-                        Enumeration<String> aliases = keystore.aliases();
-                        while (aliases.hasMoreElements()) {
-                            String alias = aliases.nextElement();
-                            if (!keystore.isKeyEntry(alias)) {
-                                Log.d(TAG, "Entry `" + alias + "` is not a private key, skip");
-                                continue;
-                            }
-
-                            // Extract private key
-                            try {
-                                entry = (KeyStore.PrivateKeyEntry)keystore.getEntry(alias, pp);
-                            } catch (Exception e) {
-                                Log.e(TAG, "Unable to get entry `" + alias + "`", e);
-                                continue;
-                            }
-
-                            // Check the type
-                            if (entry.getCertificate().getType() != "X.509") {
-                                Log.d(TAG, "Entry `" + alias + "` doesn't have the right type (" +
-                                      entry.getCertificate().getType() + ")");
-                                continue;
-                            }
-
-                            // TODO: We should match the private key class (RSAPrivateKey,
-                            //       DSAPrivateKey, ECPrivateKey) with handler.getKeyTypes().
-
-                            // Check the principal
-                            X509Certificate cert = (X509Certificate)entry.getCertificate();
-                            String issuerName = cert.getIssuerX500Principal().getName();
-                            if (!Arrays.asList(handler.getPrincipals()).contains(cert.getIssuerX500Principal())) {
-                                Log.d(TAG, "Entry `" + alias + "` doesn't have the right issuer (" +
-                                      issuerName + ")");
-                                continue;
-                            }
-
-                            // Build the certificate chain
-                            ArrayList<X509Certificate> chain = new ArrayList<X509Certificate>();
-                            for (Certificate c : entry.getCertificateChain()) {
-                                chain.add((X509Certificate)c);
-                            }
-                            Log.i(TAG, "Using entry `" + alias + "` in " + type +
-                                  " as a private key for " + handler.getHost());
-                            handler.proceed(entry.getPrivateKey(), chain);
-                            return true;
-                        }
-                    } catch (KeyStoreException e) {
-                        Log.e(TAG, "Error while querying keystore", e);
-                        return false;
-                    }
-
-                    /* Nothing found */
-                    return false;
-                }
-
                 @Override
                 public void onReceivedClientCertRequest(XWalkView view,
                                                         ClientCertRequest handler) {
@@ -205,56 +126,22 @@ public class DashboardWebView extends XWalkView {
                     Log.d(TAG, "Accepted principals: " +
                           TextUtils.join(", ", handler.getPrincipals()));
 
-                    SharedPreferences sharedPref = PreferenceManager
-                        .getDefaultSharedPreferences(mContext);
-                    String password = sharedPref.getString("pref_ssl_keystore_password", "");
-                    Boolean external = sharedPref.getBoolean("pref_ssl_external_keystore", false);
-                    String path = sharedPref.getString("pref_ssl_keystore_path", "");
-                    Boolean embedded = sharedPref.getBoolean("pref_ssl_embedded_keystore", false);
+                    PrivateKeyEntry keyEntry = CertStore.getClientCertificate(
+                        PreferenceManager.getDefaultSharedPreferences(mContext),
+                        getResources(),
+                        handler.getHost(),
+                        handler.getPrincipals());
 
-                    if (external) {
-                        Log.d(TAG, "Looking for external store `" + path + "`");
-                        try {
-                            FileInputStream in = new FileInputStream(path);
-                            try {
-                                if (handleClientCertRequest(handler, in,
-                                                            password, "external")) {
-                                    return;
-                                }
-                            } finally {
-                                in.close();
-                            }
-                        } catch (FileNotFoundException e) {
-                            Log.e(TAG, "Keystore `" + path + "` was not found");
-                        } catch (SecurityException e) {
-                            Log.e(TAG, "Access to keystore `" + path + "` was denied");
-                        } catch (IOException e) {
-                            Log.e(TAG, "Cannot handle keystore `" + path + "`", e);
+                    if (keyEntry == null) {
+                        handler.cancel();
+                    } else {
+                        ArrayList<X509Certificate> chain = new ArrayList<X509Certificate>();
+                        for (Certificate c : keyEntry.getCertificateChain()) {
+                            chain.add((X509Certificate)c);
                         }
+                        handler.proceed(keyEntry.getPrivateKey(), chain);
                     }
-                    if (embedded) {
-                        Log.d(TAG, "Looking for embedded store");
-                        try {
-                            InputStream in = getResources().openRawResource(R.raw.clientstore);
-                            try {
-                                if (handleClientCertRequest(handler, in,
-                                                            password, "embedded")) {
-                                    return;
-                                }
-                            } finally {
-                                in.close();
-                            }
-                        } catch (IOException e)  {
-                            Log.e(TAG, "Cannot handle embedded keystore", e);
-                        }
-                    }
-
-                    Log.i(TAG,
-                          "Unable to find a matching client certificate for " +
-                          handler.getHost() + " in keystore");
-                    handler.cancel();
                 }
-
             });
 
         /* Ignore most interactions */
