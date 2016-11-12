@@ -2,6 +2,8 @@ This repository contains the Android application to be used with
 [Dashkiosk](https://github.com/vincentbernat/dashkiosk). Its
 documentation is on [ReadTheDocs][].
 
+[![Build Status](https://secure.travis-ci.org/vincentbernat/dashkiosk-android.png?branch=master)](http://travis-ci.org/vincentbernat/dashkiosk-android)
+
 [ReadTheDocs]: http://dashkiosk.readthedocs.org/en/latest/android.html
 
 # Compilation
