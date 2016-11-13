@@ -103,11 +103,9 @@ import org.apache.commons.io.IOUtils
 import org.gradle.api.logging.Logger
 class PatchXWalkTransform extends Transform {
     Logger logger = null;
-    String androidJar = "";
 
-    public PatchXWalkTransform(Logger logger, String androidJar) {
+    public PatchXWalkTransform(Logger logger) {
         this.logger = logger
-        this.androidJar = androidJar
     }
 
     @Override
@@ -136,10 +134,6 @@ class PatchXWalkTransform extends Transform {
                    Collection<TransformInput> referencedInputs,
                    TransformOutputProvider outputProvider,
                    boolean isIncremental) throws IOException, TransformException, InterruptedException {
-        def pool = new ClassPool()
-        pool.insertClassPath(this.androidJar)
-        File patchedSrc = null
-        File patchedDst = null
         inputs.each {
             it.jarInputs.each {
                 def jarName = it.name
@@ -150,83 +144,49 @@ class PatchXWalkTransform extends Transform {
                     logger.info("Remove ${src}")
                     FileUtils.delete(dest)
                 } else if (!isIncremental || status != Status.NOTCHANGED) {
-                    pool.insertClassPath("${src}")
                     if (src.toString() ==~ /.*\/org\.xwalk\/xwalk_core.*\/classes\.jar/) {
-                        patchedSrc = src
-                        patchedDst = dest
-                        // We need to load other jars before patching
-                    } else {
-                        logger.info("Copy ${src}")
-                        FileUtils.copyFile(src, dest)
-                    }
-                } else {
-                    pool.insertClassPath("${src}")
-                }
-            }
-        }
-        if (patchedSrc && patchedDst) {
-            def src = patchedSrc
-            logger.info("Patching ${src}")
+                        logger.info("Patching ${src}")
 
-            // Patch SslUtil.class
-            def ctc = pool.get('org.xwalk.core.internal.SslUtil')
-            logger.debug("Replace SslUtil#shouldDenyRequest")
-            def ctm = ctc.getDeclaredMethod('shouldDenyRequest')
-            ctc.removeMethod(ctm)
-            ctc.addMethod(CtNewMethod.make("""
+                        // Patch SslUtil.class
+                        def pool = new ClassPool()
+                        pool.insertClassPath("${src}")
+                        def ctc = pool.get('org.xwalk.core.internal.SslUtil')
+                        logger.debug("Replace SslUtil#shouldDenyRequest")
+                        def ctm = ctc.getDeclaredMethod('shouldDenyRequest')
+                        ctc.removeMethod(ctm)
+                        ctc.addMethod(CtNewMethod.make("""
 public static boolean shouldDenyRequest(int error) {
     return false;
 }
 """,
-                                           ctc))
-            logger.debug("Replace SslUtil#sslErrorFromNetErrorCode")
-            ctm = ctc.getDeclaredMethod('sslErrorFromNetErrorCode')
-            ctc.removeMethod(ctm)
-            pool.importPackage('android.net.http.SslCertificate');
-            pool.importPackage('android.net.http.SslError');
-            pool.importPackage('org.chromium.net.NetError');
-            ctc.addMethod(CtNewMethod.make("""
-public static android.net.http.SslError sslErrorFromNetErrorCode(int error,
-                                                                 SslCertificate cert,
-                                                                 String url) {
-    switch(error) {
-        case NetError.ERR_CERT_COMMON_NAME_INVALID:
-            return new SslError(SslError.SSL_IDMISMATCH, cert, url);
-        case NetError.ERR_CERT_DATE_INVALID:
-            return new SslError(SslError.SSL_DATE_INVALID, cert, url);
-        case NetError.ERR_CERT_AUTHORITY_INVALID:
-            return new SslError(SslError.SSL_UNTRUSTED, cert, url);
-        default:
-            break;
-    }
-    return new android.net.http.SslError(android.net.http.SslError.SSL_INVALID, cert, url);
-}
-""",
-                                           ctc))
-            logger.debug("Generate bytecode for SslUtil")
-            def sslUtilBytecode = ctc.toBytecode()
+                                                       ctc))
+                        logger.debug("Generate bytecode for SslUtil")
+                        def sslUtilBytecode = ctc.toBytecode()
 
-            // Write back the JAR file
-            def input = new JarFile(src)
-            def output = new JarOutputStream(new FileOutputStream(patchedDst))
-            def buffer = new byte[4096]
-            input.entries().each {
-                if (!it.getName().equals("org/xwalk/core/internal/SslUtil.class")) {
-                    logger.debug("Write back ${it.getName()} to JAR")
-                    def s = input.getInputStream(it)
-                    output.putNextEntry(new JarEntry(it.getName()))
-                    IOUtils.copy(s, output)
-                    s.close()
+                        // Write back the JAR file
+                        def input = new JarFile(src)
+                        def output = new JarOutputStream(new FileOutputStream(dest))
+                        def buffer = new byte[4096]
+                        input.entries().each {
+                            if (!it.getName().equals("org/xwalk/core/internal/SslUtil.class")) {
+                                logger.debug("Write back ${it.getName()} to JAR")
+                                def s = input.getInputStream(it)
+                                output.putNextEntry(new JarEntry(it.getName()))
+                                IOUtils.copy(s, output)
+                                s.close()
+                            }
+                        }
+                        logger.debug("Write back modified class to JAR")
+                        output.putNextEntry(new JarEntry("org/xwalk/core/internal/SslUtil.class"))
+                        output.write(sslUtilBytecode)
+                        output.close()
+                    } else {
+                        logger.info("Copy ${src}")
+                        FileUtils.copyFile(src, dest)
+                    }
                 }
             }
-            logger.debug("Write back modified class to JAR")
-            output.putNextEntry(new JarEntry("org/xwalk/core/internal/SslUtil.class"))
-            output.write(sslUtilBytecode)
-            output.close()
         }
     }
 }
-android.registerTransform(
-    new PatchXWalkTransform(logger,
-                            "${android.getSdkDirectory().getAbsolutePath()}/platforms/" +
-                            "${android.getCompileSdkVersion()}/android.jar"))
+android.registerTransform(new PatchXWalkTransform(logger))
