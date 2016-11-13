@@ -73,8 +73,15 @@ gradle.taskGraph.whenReady { taskGraph ->
         taskGraph.hasTask(":assembleRelease")) {
         def console = System.console()
         def release = android.signingConfigs.release
-        release.storePassword = release.storePassword || new String(console.readPassword("> Keystore password: "))
-        release.keyPassword = release.keyPassword || new String(console.readPassword("> Key password: "))
+        if (release.storePassword == "") {
+            release.storePassword = new String(console.readPassword("> Keystore password: "))
+        }
+        if (release.keyPassword == "") {
+            release.keyPassword = new String(console.readPassword("> Key password: "))
+        }
+        if (release.keyPassword == "") {
+            release.keyPassword = release.storePassword;
+        }
     }
 }
 
