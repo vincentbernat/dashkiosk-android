@@ -44,31 +44,40 @@ public class DashboardActivity extends Activity {
     DashboardWebView mWebView = null;
 
     /**
-     * Hide navigation bar. Run at regular interval.
+     * Hide user interface the best we can.
      */
-    private void hideNavigationBar() {
+    private void hideUI() {
+        Log.d(TAG, "Hide navigation bar");
+        View decorView = getWindow().getDecorView();
+        int flags = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION |
+            View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION |
+            View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN |
+            View.SYSTEM_UI_FLAG_FULLSCREEN;
+
+        /* On API >= 29, we can lock the interface even more */
+        if (android.os.Build.VERSION.SDK_INT >= 19) {
+            SharedPreferences sharedPref = PreferenceManager
+                .getDefaultSharedPreferences(getApplication());
+            Boolean locked = sharedPref.getBoolean("pref_lock_settings", false);
+            if (locked) {
+                flags |= View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY |
+                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE;
+            }
+        }
+        decorView.setSystemUiVisibility(flags);
+        getActionBar().hide();
+    }
+
+    /**
+     * Try to keep the UI hidden. Except when the user needs it.
+     */
+    private void keepUIHidden() {
         final Handler handler = new Handler();
         final Runnable runable = new Runnable() {
                 @Override
                 public void run() {
                     try {
-                        View decorView = getWindow().getDecorView();
-
-                        int flags = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
-                        if (android.os.Build.VERSION.SDK_INT >= 19) {
-                            SharedPreferences sharedPref = PreferenceManager
-                                .getDefaultSharedPreferences(getApplication());
-                            Boolean locked = sharedPref.getBoolean("pref_lock_settings", false);
-                            if (locked) {
-                                flags |= View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY |
-                                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE;
-                            }
-                        }
-                        flags |= View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION |
-                            View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN |
-                            View.SYSTEM_UI_FLAG_FULLSCREEN;
-                        getActionBar().hide();
-                        decorView.setSystemUiVisibility(flags);
+                        hideUI();
                     } finally {
                         handler.removeCallbacks(this);
                         handler.postDelayed(this, 10000);
@@ -76,25 +85,21 @@ public class DashboardActivity extends Activity {
                 }
             };
 
-        View decorView = getWindow().getDecorView();
+        final View decorView = getWindow().getDecorView();
         decorView.setOnSystemUiVisibilityChangeListener(
             new View.OnSystemUiVisibilityChangeListener() {
                 @Override
                 public void onSystemUiVisibilityChange(int visibility) {
-                    ActionBar bar = getActionBar();
+                    SharedPreferences sharedPref = PreferenceManager
+                        .getDefaultSharedPreferences(getApplication());
 
-                    if ((visibility & View.SYSTEM_UI_FLAG_HIDE_NAVIGATION) == 0) {
-                        Log.d(TAG, "Show navigation bar");
-                        SharedPreferences sharedPref = PreferenceManager
-                            .getDefaultSharedPreferences(getApplication());
-                        if (!sharedPref.getBoolean("pref_lock_settings", false)) {
-                            bar.setBackgroundDrawable(
-                                new ColorDrawable(Color.argb(150, 0, 0, 0)));
-                            bar.show();
-                        }
+                    if ((visibility & View.SYSTEM_UI_FLAG_HIDE_NAVIGATION) == 0 &&
+                        !sharedPref.getBoolean("pref_lock_settings", false)) {
+                        Log.d(TAG, "Show navigation bar (visibility: " + visibility + ")");
+                        decorView.setSystemUiVisibility(0);
+                        getActionBar().show();
                     } else {
-                        Log.d(TAG, "Hide navigation bar");
-                        bar.hide();
+                        hideUI();
                     }
                     handler.removeCallbacks(runable);
                     handler.postDelayed(runable, 10000);
@@ -164,7 +169,9 @@ public class DashboardActivity extends Activity {
         PreferenceManager.setDefaultValues(this, R.xml.preferences, true);
         setScreenOn();
         setContentView(R.layout.main);
+        keepUIHidden();
         mWebView = (DashboardWebView)findViewById(R.id.webview);
+        mWebView.clearSslPreferences();
     }
 
     @Override
@@ -180,7 +187,6 @@ public class DashboardActivity extends Activity {
     protected void onResume() {
         super.onResume();
         setOrientation();
-        hideNavigationBar();
         if (mWebView != null) {
             mWebView.clearSslPreferences();
             mWebView.resumeTimers();
