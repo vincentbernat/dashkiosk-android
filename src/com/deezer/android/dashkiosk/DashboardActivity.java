@@ -40,7 +40,7 @@ import com.deezer.android.dashkiosk.DashboardWebView;
 
 public class DashboardActivity extends Activity {
 
-    private static final String TAG = "Dashkiosk";
+    private static final String TAG = "DashKiosk";
     DashboardWebView mWebView = null;
 
     /**
