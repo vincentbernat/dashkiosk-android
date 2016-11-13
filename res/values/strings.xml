@@ -17,7 +17,7 @@
     <string name="pref_ping_timeout">Timeout</string>
     <string name="pref_ssl_title">TLS</string>
     <string name="pref_ssl_insecure">Insecure TLS</string>
-    <string name="pref_ssl_insecure_on">Allow untrusted certificates</string>
+    <string name="pref_ssl_insecure_on">Allow invalid certificates</string>
     <string name="pref_ssl_insecure_off">TLS errors will prevent loading a page</string>
     <string name="pref_ssl_embedded_keystore">Embedded keystore</string>
     <string name="pref_ssl_embedded_keystore_on">Use embedded keystore for client certificates</string>

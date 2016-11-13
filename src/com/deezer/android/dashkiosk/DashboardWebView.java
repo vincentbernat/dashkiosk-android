@@ -99,14 +99,8 @@ public class DashboardWebView extends XWalkView {
                     SharedPreferences sharedPref = PreferenceManager
                         .getDefaultSharedPreferences(mContext);
                     Boolean insecure = sharedPref.getBoolean("pref_insecure_ssl", false);
-                    if (insecure &&
-                        error.hasError(SslError.SSL_UNTRUSTED) &&
-                        !error.hasError(SslError.SSL_DATE_INVALID) &&
-                        !error.hasError(SslError.SSL_EXPIRED) &&
-                        !error.hasError(SslError.SSL_IDMISMATCH) &&
-                        !error.hasError(SslError.SSL_INVALID)) {
-                        // The certificate is "only" untrusted and we allow this.
-                        Log.d(TAG, "Accept untrusted certificate " + error.getCertificate());
+                    if (insecure) {
+                        Log.d(TAG, "Accept invalid certificate " + error.getCertificate());
                         callback.onReceiveValue(true);
                         return;
                     }
