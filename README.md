@@ -2,9 +2,9 @@ This repository contains the Android application to be used with
 [Dashkiosk](https://github.com/vincentbernat/dashkiosk). Its
 documentation is on [ReadTheDocs][].
 
-[![Build Status](https://secure.travis-ci.org/vincentbernat/dashkiosk-android.png?branch=master)](http://travis-ci.org/vincentbernat/dashkiosk-android)
+[![Build Status](https://secure.travis-ci.org/vincentbernat/dashkiosk-android.png?branch=master)](https://travis-ci.org/vincentbernat/dashkiosk-android)
 
-[ReadTheDocs]: http://dashkiosk.readthedocs.org/en/latest/android.html
+[ReadTheDocs]: https://dashkiosk.readthedocs.org/en/latest/android.html
 
 # Compilation
 
@@ -20,7 +20,7 @@ To just build a debug APK, use:
 If the build process complains about licensing, you need
 to [manually accept the licenses][] with the SDK manager GUI tool.
 
-[Android SDK]: http://developer.android.com/sdk/index.html#Other
+[Android SDK]: https://developer.android.com/studio/index.html#downloads
 [manually accept the licenses]: https://developer.android.com/studio/intro/update.html#download-with-gradle
 
 The embedded certificates are just here as an exemple. Only the client
