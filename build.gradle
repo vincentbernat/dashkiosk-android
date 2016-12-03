@@ -151,7 +151,7 @@ class PatchXWalkTransform extends Transform {
                     logger.info("Remove ${src}")
                     FileUtils.delete(dest)
                 } else if (!isIncremental || status != Status.NOTCHANGED) {
-                    if (src.toString() ==~ /.*\/org\.xwalk\/xwalk_core.*\/classes\.jar/) {
+                    if (src.toString() ==~ ".*/org.xwalk/xwalk_core.*/classes.jar") {
                         logger.info("Patching ${src}")
 
                         // Patch SslUtil.class
