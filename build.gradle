@@ -173,7 +173,6 @@ public static boolean shouldDenyRequest(int error) {
                         // Write back the JAR file
                         def input = new JarFile(src)
                         def output = new JarOutputStream(new FileOutputStream(dest))
-                        def buffer = new byte[4096]
                         input.entries().each {
                             if (!it.getName().equals("org/xwalk/core/internal/SslUtil.class")) {
                                 logger.debug("Write back ${it.getName()} to JAR")
