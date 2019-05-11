@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.deezer.android.dashkiosk"
     android:versionCode="11"
-    android:versionName="@string/app_versionName">
+    android:versionName="2.7.2"><!-- Also update res/values/strings.xml -->
 
   <uses-sdk
       tools:ignore="OldTargetApi"

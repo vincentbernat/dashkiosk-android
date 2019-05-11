@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Dashkiosk</string>
-    <string name="app_versionName">2.7.1</string>
+    <string name="app_versionName">2.7.2</string><!-- Also, update AndroidManifest.xml -->
     <string name="preferences">Dashkiosk preferences</string>
     <string name="pref_general_title">General settings</string>
     <string name="pref_general_orientation">Device orientation</string>
